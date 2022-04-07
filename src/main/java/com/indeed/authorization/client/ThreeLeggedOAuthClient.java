@@ -38,37 +38,53 @@ import java.util.Objects;
 
 import static com.indeed.authorization.client.common.IndeedPrompt.PROMPT_KEY;
 
-/**
- * https://developer.indeed.com/docs/authorization/3-legged-oauth
- */
+/** https://developer.indeed.com/docs/authorization/3-legged-oauth */
 public class ThreeLeggedOAuthClient extends OAuthClient {
 
     public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
-            final String clientId,
-            final String clientSecret,
-            final String hostname) throws GeneralException, IOException {
-        return new ThreeLeggedOAuthClient(clientId, clientSecret, hostname, DEFAULT_CONNECTION_TIMEOUT);
+            final String clientId, final String clientSecret, final String hostname)
+            throws GeneralException, IOException {
+        return new ThreeLeggedOAuthClient(
+                clientId, clientSecret, hostname, DEFAULT_CONNECTION_TIMEOUT);
     }
 
     public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
             final String clientId,
             final String clientSecret,
             final String hostname,
-            final int timeout) throws GeneralException, IOException {
+            final int timeout)
+            throws GeneralException, IOException {
         return new ThreeLeggedOAuthClient(clientId, clientSecret, hostname, timeout);
     }
 
-    private ThreeLeggedOAuthClient(final String clientId, final String clientSecret, final String hostname, final int timeout) throws GeneralException, IOException {
+    private ThreeLeggedOAuthClient(
+            final String clientId,
+            final String clientSecret,
+            final String hostname,
+            final int timeout)
+            throws GeneralException, IOException {
         super(clientId, clientSecret, hostname, timeout);
     }
 
     /**
      * https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret
      *
-     * @param state   A parameter used to prevent CSRF attacks. This can be any unique string your application creates to maintain state between the request and callback. Indeed passes this parameter back to your redirect URI. See the <a href="https://tools.ietf.org/html/rfc6819#section-4.4.1.8">RFC documentation on CSRF attack against redirect-uri</a> for more information.
-     * @param scopes  The permissions that the client application is requesting. <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#scopes">Scopes</a> must be space-delimited and then URL encoded so the spaces are replaced by plus signs +.
-     * @param prompt Displays to the authorizing user an Indeed employer selection screen, from which the user chooses the employer account assigned to your access token. To do this, add the prompt=select_employer parameter to the authorization link, and include the employer_access scope. See <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#prompt">Display the Indeed employer selection screen</a> for details.
-     * @param redirectUrl This is the page on your site that captures the authorization code. It must match one of the redirect URLs registered with your application.
+     * @param state A parameter used to prevent CSRF attacks. This can be any unique string your
+     *     application creates to maintain state between the request and callback. Indeed passes
+     *     this parameter back to your redirect URI. See the <a
+     *     href="https://tools.ietf.org/html/rfc6819#section-4.4.1.8">RFC documentation on CSRF
+     *     attack against redirect-uri</a> for more information.
+     * @param scopes The permissions that the client application is requesting. <a
+     *     href="https://developer.indeed.com/docs/authorization/3-legged-oauth#scopes">Scopes</a>
+     *     must be space-delimited and then URL encoded so the spaces are replaced by plus signs +.
+     * @param prompt Displays to the authorizing user an Indeed employer selection screen, from
+     *     which the user chooses the employer account assigned to your access token. To do this,
+     *     add the prompt=select_employer parameter to the authorization link, and include the
+     *     employer_access scope. See <a
+     *     href="https://developer.indeed.com/docs/authorization/3-legged-oauth#prompt">Display the
+     *     Indeed employer selection screen</a> for details.
+     * @param redirectUrl This is the page on your site that captures the authorization code. It
+     *     must match one of the redirect URLs registered with your application.
      * @return The authorization url to request for user's authorization.
      * @throws URISyntaxException If the given redirect url violates RFC2396
      */
@@ -76,63 +92,69 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
             final String state,
             final String[] scopes,
             final IndeedPrompt.Type prompt,
-            final String redirectUrl) throws URISyntaxException {
+            final String redirectUrl)
+            throws URISyntaxException {
         Objects.requireNonNull(redirectUrl, "redirectUrl must not be null");
-        final AuthorizationRequest request = new AuthorizationRequest.Builder(
-                new ResponseType(ResponseType.Value.CODE), clientAuthentication.getClientID())
-                .scope(new IndeedScope(scopes))
-                .state(new State(state))
-                .redirectionURI(new URI(redirectUrl))
-                .endpointURI(oidcProviderMetadata.getAuthorizationEndpointURI())
-                .customParameter(PROMPT_KEY, prompt == null ? null : prompt.toString())
-                .build();
+        final AuthorizationRequest request =
+                new AuthorizationRequest.Builder(
+                                new ResponseType(ResponseType.Value.CODE),
+                                clientAuthentication.getClientID())
+                        .scope(new IndeedScope(scopes))
+                        .state(new State(state))
+                        .redirectionURI(new URI(redirectUrl))
+                        .endpointURI(oidcProviderMetadata.getAuthorizationEndpointURI())
+                        .customParameter(PROMPT_KEY, prompt == null ? null : prompt.toString())
+                        .build();
         return request.toURI();
     }
 
     /**
      * https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token
      *
-     * @param code The authorization code. It is valid for 10 minutes from the time when you have received it.
-     * @param redirectUrl This is the page on your site that captures the authorization code. It must match one of the redirect URLs registered with your application.
+     * @param code The authorization code. It is valid for 10 minutes from the time when you have
+     *     received it.
+     * @param redirectUrl This is the page on your site that captures the authorization code. It
+     *     must match one of the redirect URLs registered with your application.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      * @throws URISyntaxException If the given redirect url violates RFC2396
      */
-    public OIDCTokens getUserOAuthCredentials(
-            final String code, final String redirectUrl) throws OAuthBadResponseException, URISyntaxException {
+    public OIDCTokens getUserOAuthCredentials(final String code, final String redirectUrl)
+            throws OAuthBadResponseException, URISyntaxException {
         Objects.requireNonNull(code, "code must not be null");
-        return executeTokenRequest(new TokenRequest(
-                oidcProviderMetadata.getTokenEndpointURI(),
-                clientAuthentication,
-                new AuthorizationCodeGrant(
-                        new AuthorizationCode(code),
-                        new URI(redirectUrl))
-        ));
+        return executeTokenRequest(
+                new TokenRequest(
+                        oidcProviderMetadata.getTokenEndpointURI(),
+                        clientAuthentication,
+                        new AuthorizationCodeGrant(
+                                new AuthorizationCode(code), new URI(redirectUrl))));
     }
 
     /**
      * https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen
      *
-     * @param code       The authorization code. It is valid for 10 minutes from the time when you have received it.
+     * @param code The authorization code. It is valid for 10 minutes from the time when you have
+     *     received it.
      * @param employerId The id that represents the employer the user has selected.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      * @throws URISyntaxException If the given redirect url violates RFC2396
      */
     public OIDCTokens getEmployerOAuthCredentials(
-            final String code, final String redirectUrl, final String employerId) throws URISyntaxException, OAuthBadResponseException {
+            final String code, final String redirectUrl, final String employerId)
+            throws URISyntaxException, OAuthBadResponseException {
         Objects.requireNonNull(code, "code must not be null");
         Objects.requireNonNull(employerId, "employerId must not be null");
-        return executeTokenRequest(new TokenRequest(
-                oidcProviderMetadata.getTokenEndpointURI(),
-                clientAuthentication,
-                new AuthorizationCodeGrant(
-                        new AuthorizationCode(code),
-                        new URI(redirectUrl)),
-                null,
-                null,
-                Collections.singletonMap(EMPLOYER_PARAM_KEY, Collections.singletonList(employerId))
-        ));
+        return executeTokenRequest(
+                new TokenRequest(
+                        oidcProviderMetadata.getTokenEndpointURI(),
+                        clientAuthentication,
+                        new AuthorizationCodeGrant(
+                                new AuthorizationCode(code), new URI(redirectUrl)),
+                        null,
+                        null,
+                        Collections.singletonMap(
+                                EMPLOYER_PARAM_KEY, Collections.singletonList(employerId))));
     }
 
     /**
@@ -142,12 +164,13 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      */
-    public OIDCTokens refreshOAuthCredentials(final String refreshToken) throws OAuthBadResponseException {
+    public OIDCTokens refreshOAuthCredentials(final String refreshToken)
+            throws OAuthBadResponseException {
         Objects.requireNonNull(refreshToken, "refreshToken must not be null");
-        return executeTokenRequest(new TokenRequest(
-                oidcProviderMetadata.getTokenEndpointURI(),
-                clientAuthentication,
-                new RefreshTokenGrant(new RefreshToken(refreshToken))
-        ));
+        return executeTokenRequest(
+                new TokenRequest(
+                        oidcProviderMetadata.getTokenEndpointURI(),
+                        clientAuthentication,
+                        new RefreshTokenGrant(new RefreshToken(refreshToken))));
     }
 }

@@ -30,61 +30,72 @@ import java.util.Objects;
 public class TwoLeggedOAuthClient extends OAuthClient {
 
     public static TwoLeggedOAuthClient create2LeggedOAuth2Client(
-            final String clientId,
-            final String clientSecret,
-            final String hostname) throws GeneralException, IOException {
-        return new TwoLeggedOAuthClient(clientId, clientSecret, hostname, DEFAULT_CONNECTION_TIMEOUT);
+            final String clientId, final String clientSecret, final String hostname)
+            throws GeneralException, IOException {
+        return new TwoLeggedOAuthClient(
+                clientId, clientSecret, hostname, DEFAULT_CONNECTION_TIMEOUT);
     }
 
     public static TwoLeggedOAuthClient create2LeggedOAuth2Client(
             final String clientId,
             final String clientSecret,
             final String hostname,
-            final int timeout) throws GeneralException, IOException {
+            final int timeout)
+            throws GeneralException, IOException {
         return new TwoLeggedOAuthClient(clientId, clientSecret, hostname, timeout);
     }
-    private TwoLeggedOAuthClient(final String clientId, final String clientSecret, final String hostname, final int timeout) throws GeneralException, IOException {
+
+    private TwoLeggedOAuthClient(
+            final String clientId,
+            final String clientSecret,
+            final String hostname,
+            final int timeout)
+            throws GeneralException, IOException {
         super(clientId, clientSecret, hostname, timeout);
     }
 
     /**
      * https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token
      *
-     * @param scopes To get a list of employer accounts associated with the user that registered the app or to get an access token for one of these associated employer accounts, pass employer_access.
+     * @param scopes To get a list of employer accounts associated with the user that registered the
+     *     app or to get an access token for one of these associated employer accounts, pass
+     *     employer_access.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      */
-    public OIDCTokens getAppOAuthCredentials(
-            final String[] scopes) throws OAuthBadResponseException {
+    public OIDCTokens getAppOAuthCredentials(final String[] scopes)
+            throws OAuthBadResponseException {
         Objects.requireNonNull(scopes, "scopes must not be null");
-        return executeTokenRequest(new TokenRequest(
-                oidcProviderMetadata.getTokenEndpointURI(),
-                clientAuthentication,
-                new ClientCredentialsGrant(),
-                new IndeedScope(scopes)
-        ));
+        return executeTokenRequest(
+                new TokenRequest(
+                        oidcProviderMetadata.getTokenEndpointURI(),
+                        clientAuthentication,
+                        new ClientCredentialsGrant(),
+                        new IndeedScope(scopes)));
     }
 
     /**
      * https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer
      *
      * @param employerID The id that represents the employer the user has selected.
-     * @param scopes     To get a list of employer accounts associated with the user that registered the app or to get an access token for one of these associated employer accounts, pass employer_access.
+     * @param scopes To get a list of employer accounts associated with the user that registered the
+     *     app or to get an access token for one of these associated employer accounts, pass
+     *     employer_access.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      */
-    public OIDCTokens getEmployerOAuthCredentials(
-            final String employerID,
-            final String[] scopes) throws OAuthBadResponseException {
+    public OIDCTokens getEmployerOAuthCredentials(final String employerID, final String[] scopes)
+            throws OAuthBadResponseException {
         Objects.requireNonNull(employerID, "employerID must not be null");
         Objects.requireNonNull(scopes, "scopes must not be null");
-        return executeTokenRequest(new TokenRequest(
-                oidcProviderMetadata.getTokenEndpointURI(),
-                clientAuthentication,
-                new ClientCredentialsGrant(),
-                new IndeedScope(scopes),
-                null,
-                Collections.singletonMap(EMPLOYER_PARAM_KEY, Collections.singletonList(employerID))
-        ));
+        return executeTokenRequest(
+                new TokenRequest(
+                        oidcProviderMetadata.getTokenEndpointURI(),
+                        clientAuthentication,
+                        new ClientCredentialsGrant(),
+                        new IndeedScope(scopes),
+                        null,
+                        Collections.singletonMap(
+                                EMPLOYER_PARAM_KEY, Collections.singletonList(employerID))));
     }
 }

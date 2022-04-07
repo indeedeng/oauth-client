@@ -34,27 +34,37 @@ import java.io.IOException;
 import java.util.Objects;
 
 public abstract class OAuthClient {
-    public final static Integer DEFAULT_CONNECTION_TIMEOUT = 5000;
-    public final static String EMPLOYER_PARAM_KEY = "employer";
+    public static final Integer DEFAULT_CONNECTION_TIMEOUT = 5000;
+    public static final String EMPLOYER_PARAM_KEY = "employer";
 
     protected ClientAuthentication clientAuthentication;
     protected final OIDCProviderMetadata oidcProviderMetadata;
 
-    public OAuthClient(final String clientId, final String clientSecret, final String hostname, final int timeout) throws GeneralException, IOException {
+    public OAuthClient(
+            final String clientId,
+            final String clientSecret,
+            final String hostname,
+            final int timeout)
+            throws GeneralException, IOException {
         Objects.requireNonNull(clientId, "clientId must not be null");
         Objects.requireNonNull(clientSecret, "clientSecret must not be null");
         Objects.requireNonNull(hostname, "hostname must not be null");
-        this.clientAuthentication = new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
-        this.oidcProviderMetadata = OIDCProviderMetadata.resolve(new Issuer(hostname), timeout, timeout);
+        this.clientAuthentication =
+                new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
+        this.oidcProviderMetadata =
+                OIDCProviderMetadata.resolve(new Issuer(hostname), timeout, timeout);
     }
 
-    protected OIDCTokens executeTokenRequest(final TokenRequest request) throws OAuthBadResponseException {
+    protected OIDCTokens executeTokenRequest(final TokenRequest request)
+            throws OAuthBadResponseException {
         try {
-            final TokenResponse tokenResponse = OIDCTokenResponseParser.parse(request.toHTTPRequest().send());
+            final TokenResponse tokenResponse =
+                    OIDCTokenResponseParser.parse(request.toHTTPRequest().send());
             if (!tokenResponse.indicatesSuccess()) {
                 throw new OAuthBadResponseException(tokenResponse.toErrorResponse());
             }
-            final OIDCTokenResponse successResponse = (OIDCTokenResponse)tokenResponse.toSuccessResponse();
+            final OIDCTokenResponse successResponse =
+                    (OIDCTokenResponse) tokenResponse.toSuccessResponse();
             return successResponse.getOIDCTokens();
         } catch (final Exception e) {
             throw new OAuthBadResponseException(e);

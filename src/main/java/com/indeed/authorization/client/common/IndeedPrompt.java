@@ -16,20 +16,15 @@
 
 package com.indeed.authorization.client.common;
 
-/**
- * @see com.nimbusds.openid.connect.sdk.Prompt
- */
+/** @see com.nimbusds.openid.connect.sdk.Prompt */
 public class IndeedPrompt {
-    public final static String PROMPT_KEY = "prompt";
-    /**
-     * Enumeration of the prompt types.
-     */
+    public static final String PROMPT_KEY = "prompt";
+    /** Enumeration of the prompt types. */
     public enum Type {
         /**
-         * The authorisation server must prompt the end-user to select
-         * an employer account. This allows a user who has multiple accounts
-         * at the authorisation server to select amongst the multiple
-         * accounts that they may have current sessions for.
+         * The authorisation server must prompt the end-user to select an employer account. This
+         * allows a user who has multiple accounts at the authorisation server to select amongst the
+         * multiple accounts that they may have current sessions for.
          */
         SELECT_EMPLOYER;
 
