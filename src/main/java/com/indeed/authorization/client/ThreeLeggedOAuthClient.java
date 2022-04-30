@@ -38,7 +38,7 @@ import java.util.Objects;
 
 import static com.indeed.authorization.client.common.IndeedPrompt.PROMPT_KEY;
 
-/** https://developer.indeed.com/docs/authorization/3-legged-oauth */
+/** <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth">https://developer.indeed.com/docs/authorization/3-legged-oauth</a> */
 public class ThreeLeggedOAuthClient extends OAuthClient {
 
     public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
@@ -67,7 +67,7 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret
+     * <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret">https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret</a>
      *
      * @param state A parameter used to prevent CSRF attacks. This can be any unique string your
      *     application creates to maintain state between the request and callback. Indeed passes
@@ -109,7 +109,7 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token
+     * <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token">https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token</a>
      *
      * @param code The authorization code. It is valid for 10 minutes from the time when you have
      *     received it.
@@ -131,7 +131,7 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen
+     * <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen">https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen</a>
      *
      * @param code The authorization code. It is valid for 10 minutes from the time when you have
      *     received it.
@@ -158,7 +158,7 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#refresh-your-token
+     * <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#refresh-your-token">https://developer.indeed.com/docs/authorization/3-legged-oauth#refresh-your-token</a>
      *
      * @param refreshToken The refresh token returned with your user's access token
      * @return OIDCTokens

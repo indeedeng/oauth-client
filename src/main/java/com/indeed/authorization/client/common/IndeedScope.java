@@ -18,7 +18,7 @@ package com.indeed.authorization.client.common;
 
 import com.nimbusds.oauth2.sdk.Scope;
 
-/** https://developer.indeed.com/docs/authorization/3-legged-oauth#scopes */
+/** <a href="https://developer.indeed.com/docs/authorization/3-legged-oauth#scopes">https://developer.indeed.com/docs/authorization/3-legged-oauth#scopes</a> */
 public class IndeedScope extends Scope {
     public static final String EMAIL = "email";
     public static final String OFFLINE_ACCESS = "offline_access";

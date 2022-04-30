@@ -55,7 +55,7 @@ public class TwoLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token
+     * <a href="https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token">https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token</a>
      *
      * @param scopes To get a list of employer accounts associated with the user that registered the
      *     app or to get an access token for one of these associated employer accounts, pass
@@ -75,7 +75,7 @@ public class TwoLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer
+     * <a href="https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer">https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer</a>
      *
      * @param employerID The id that represents the employer the user has selected.
      * @param scopes To get a list of employer accounts associated with the user that registered the
