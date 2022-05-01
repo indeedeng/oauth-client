@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.indeed.authorization.client.TwoLeggedOAuthClient.create2LeggedOAuth2Client;
-import static com.indeed.authorization.client.constants.MockDataLibrary.CLIENT_ID;
-import static com.indeed.authorization.client.constants.MockDataLibrary.CLIENT_SECRET;
-import static com.indeed.authorization.client.constants.MockDataLibrary.EMPLOYER_ID;
-import static com.indeed.authorization.client.constants.MockDataLibrary.HOSTNAME;
-import static com.indeed.authorization.client.constants.MockDataLibrary.OIDC_TOKENS_ACCESS;
-import static com.indeed.authorization.client.constants.MockDataLibrary.TWO_LEGGED_EMPLOYER_ACCESS_AUTH_SCOPE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Account.EMPLOYER_ID;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CLIENT_SECRET;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.HOSTNAME;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.RAW_CLIENT_ID;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.TWO_LEGGED_EMPLOYER_ACCESS_AUTH_SCOPE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +24,8 @@ class TwoLeggedOAuthClientTest {
     private final TwoLeggedOAuthClient twoLeggedOAuthClient;
 
     public TwoLeggedOAuthClientTest() throws GeneralException, IOException {
-        twoLeggedOAuthClient = spy(create2LeggedOAuth2Client(CLIENT_ID, CLIENT_SECRET, HOSTNAME));
+        twoLeggedOAuthClient =
+                spy(create2LeggedOAuth2Client(RAW_CLIENT_ID, CLIENT_SECRET, HOSTNAME));
     }
 
     @Test
