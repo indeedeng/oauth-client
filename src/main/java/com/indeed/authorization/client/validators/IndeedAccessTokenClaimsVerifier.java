@@ -29,11 +29,11 @@ public class IndeedAccessTokenClaimsVerifier
     /**
      * Creates a new access token claims verifier.
      *
-     * @param issuer       The expected ID token issuer. Must not be {@code null}.
-     * @param clientID     The expected client ID. Must not be {@code null}.
-     * @param scopes       The expected scopes. Must not be {@code null}.
+     * @param issuer The expected ID token issuer. Must not be {@code null}.
+     * @param clientID The expected client ID. Must not be {@code null}.
+     * @param scopes The expected scopes. Must not be {@code null}.
      * @param maxClockSkew The maximum acceptable clock skew (absolute value), in seconds. Must be
-     *                     zero (no clock skew) or positive integer.
+     *     zero (no clock skew) or positive integer.
      */
     public IndeedAccessTokenClaimsVerifier(
             final Issuer issuer,

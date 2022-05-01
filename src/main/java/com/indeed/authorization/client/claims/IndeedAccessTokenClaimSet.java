@@ -27,22 +27,14 @@ import java.util.Set;
  * </pre>
  */
 public class IndeedAccessTokenClaimSet extends CommonClaimsSet {
-    /**
-     * The expiration time claim name.
-     */
+    /** The expiration time claim name. */
     public static final String EXP_CLAIM_NAME = "exp";
-    /**
-     * The scope claim name.
-     */
+    /** The scope claim name. */
     public static final String SCOPE_CLAIM_NAME = "scope";
-    /**
-     * The authorized party claim name.
-     */
+    /** The authorized party claim name. */
     public static final String AZP_CLAIM_NAME = "azp";
 
-    /**
-     * The names of the standard top-level ID token claims.
-     */
+    /** The names of the standard top-level ID token claims. */
     private static final Set<String> STD_CLAIM_NAMES;
 
     static {

@@ -19,8 +19,7 @@ package com.indeed.authorization.client.exceptions;
 import com.nimbusds.oauth2.sdk.ErrorResponse;
 
 public class OAuthBadResponseException extends Exception {
-    public OAuthBadResponseException() {
-    }
+    public OAuthBadResponseException() {}
 
     public OAuthBadResponseException(final Throwable throwable) {
         super(throwable);

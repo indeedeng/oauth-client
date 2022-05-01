@@ -18,7 +18,7 @@ class IndeedAccessTokenClaimsVerifierTest {
 
     @Test
     public void
-    createIndeedAccessTokenClaimsVerifier_withBadArguments_getIllegalArgumentException() {
+            createIndeedAccessTokenClaimsVerifier_withBadArguments_getIllegalArgumentException() {
         assertAll(
                 () -> {
                     assertThrows(

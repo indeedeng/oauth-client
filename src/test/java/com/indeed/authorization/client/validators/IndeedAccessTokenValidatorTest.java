@@ -20,8 +20,7 @@ class IndeedAccessTokenValidatorTest {
     private final IndeedAccessTokenValidator validator =
             IndeedAccessTokenValidator.create(ISSUER, new URL(JWKS_URI), CLIENT_ID);
 
-    IndeedAccessTokenValidatorTest() throws MalformedURLException {
-    }
+    IndeedAccessTokenValidatorTest() throws MalformedURLException {}
 
     @Test
     public void createIndeedAccessTokenValidator_withValidArguments_getNoException() {

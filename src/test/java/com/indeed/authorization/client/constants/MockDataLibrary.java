@@ -57,17 +57,17 @@ public class MockDataLibrary {
                 IndeedPrompt.Type.SELECT_EMPLOYER;
         public static final String[] THREE_LEGGED_EMPTY_AUTH_SCOPE = {};
         public static final String[] THREE_LEGGED_ALL_AUTH_SCOPES =
-                new String[]{
-                        IndeedScope.EMAIL, IndeedScope.EMPLOYER_ACCESS, IndeedScope.OFFLINE_ACCESS
+                new String[] {
+                    IndeedScope.EMAIL, IndeedScope.EMPLOYER_ACCESS, IndeedScope.OFFLINE_ACCESS
                 };
         public static final String[] TWO_LEGGED_EMPLOYER_ACCESS_AUTH_SCOPE =
-                new String[]{IndeedScope.EMPLOYER_ACCESS};
+                new String[] {IndeedScope.EMPLOYER_ACCESS};
         public static final String NULL_STATE = null;
         public static final String STATE = "VALID_STATE";
         public static final String CODE = "CODE";
         public static final String RAW_EXPECTED_SCOPES = "offline_access+employer_access+email";
         public static final String[] EXPECTED_SCOPES =
-                new String[]{"offline_access", "employer_access", "email"};
+                new String[] {"offline_access", "employer_access", "email"};
         public static final String RECEIVED_SCOPES = "offline_access employer_access email";
         public static final String AUTHORIZATION_PARTY = RAW_CLIENT_ID;
         public static final Set<String> EXPECTED_ACCESS_TOKEN_STANDARD_CLAIM_SET =
