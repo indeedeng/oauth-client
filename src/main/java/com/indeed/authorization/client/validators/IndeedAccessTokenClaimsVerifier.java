@@ -82,6 +82,11 @@ public class IndeedAccessTokenClaimsVerifier
         }
     }
 
+    /**
+     * Verifies selected or all claims from the specified JWT claims set.
+     * @param claimsSet The JWT claims set. Not null.
+     * @throws BadJWTException If the JWT claims set is rejected.
+     */
     private void verifyInternal(final IndeedAccessTokenClaimSet claimsSet) throws BadJWTException {
         final String actualIssuer = claimsSet.getIssuer().getValue();
         if (!this.expectedIssuer.getValue().equals(actualIssuer)) {

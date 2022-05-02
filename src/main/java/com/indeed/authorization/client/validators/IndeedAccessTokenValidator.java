@@ -23,9 +23,21 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
         super(expectedIssuer, clientID, jwsKeySelector, null);
     }
 
+    /**
+     * Validates the access token against the expected scopes.
+     * @param accessToken The generated access token. Not Null.
+     * @param expectedScopes The expected scopes to the access token. Not Null.
+     * @return {@link IndeedAccessTokenClaimSet}
+     * @throws BadJWTException
+     * @throws ParseException
+     */
     public IndeedAccessTokenClaimSet validate(
-            final IndeedAccessToken accessToken, final String[] scopes)
+            final IndeedAccessToken accessToken, final String[] expectedScopes)
             throws BadJWTException, ParseException {
+        if (accessToken == null) {
+            throw new IllegalArgumentException("The access token issuer must not be null");
+        }
+
         final JWTClaimsSet claimsSet;
 
         try {
@@ -36,11 +48,18 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
 
         final IndeedAccessTokenClaimsVerifier verifier =
                 new IndeedAccessTokenClaimsVerifier(
-                        this.getExpectedIssuer(), this.getClientID(), scopes, getMaxClockSkew());
+                        this.getExpectedIssuer(), this.getClientID(), expectedScopes, getMaxClockSkew());
         verifier.verify(claimsSet, null);
         return new IndeedAccessTokenClaimSet(claimsSet);
     }
 
+    /**
+     * Create an {@link IndeedAccessTokenValidator} Object.
+     * @param issuer Indeed's issuer (ie. <a href="https://secure.indeed.com">https://secure.indeed.com</a>
+     * @param jwkSetUrl The key selector for JWS verification, null if unsecured (plain) tokens are expected.
+     * @param clientID The client ID. Must not be null.
+     * @return IllegalArgumentException Invalid arguments
+     */
     public static IndeedAccessTokenValidator create(
             final Issuer issuer, final URL jwkSetUrl, final ClientID clientID) {
         if (jwkSetUrl == null) {
