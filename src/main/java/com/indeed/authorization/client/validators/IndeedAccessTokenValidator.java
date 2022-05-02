@@ -25,6 +25,7 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
 
     /**
      * Validates the access token against the expected scopes.
+     *
      * @param accessToken The generated access token. Not Null.
      * @param expectedScopes The expected scopes to the access token. Not Null.
      * @return {@link IndeedAccessTokenClaimSet}
@@ -48,15 +49,21 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
 
         final IndeedAccessTokenClaimsVerifier verifier =
                 new IndeedAccessTokenClaimsVerifier(
-                        this.getExpectedIssuer(), this.getClientID(), expectedScopes, getMaxClockSkew());
+                        this.getExpectedIssuer(),
+                        this.getClientID(),
+                        expectedScopes,
+                        getMaxClockSkew());
         verifier.verify(claimsSet, null);
         return new IndeedAccessTokenClaimSet(claimsSet);
     }
 
     /**
      * Create an {@link IndeedAccessTokenValidator} Object.
-     * @param issuer Indeed's issuer (ie. <a href="https://secure.indeed.com">https://secure.indeed.com</a>
-     * @param jwkSetUrl The key selector for JWS verification, null if unsecured (plain) tokens are expected.
+     *
+     * @param issuer Indeed's issuer (ie. <a
+     *     href="https://secure.indeed.com">https://secure.indeed.com</a>
+     * @param jwkSetUrl The key selector for JWS verification, null if unsecured (plain) tokens are
+     *     expected.
      * @param clientID The client ID. Must not be null.
      * @return IllegalArgumentException Invalid arguments
      */
