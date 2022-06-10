@@ -1,6 +1,6 @@
 package com.indeed.authorization.client.validators;
 
-import com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet;
+import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
 import com.indeed.authorization.client.tokens.IndeedAccessToken;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWKSecurityContext;
@@ -28,11 +28,11 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
      *
      * @param accessToken The generated access token. Not Null.
      * @param expectedScopes The expected scopes to the access token. Not Null.
-     * @return {@link IndeedAccessTokenClaimSet}
+     * @return {@link IndeedAccessTokenClaimsSet}
      * @throws BadJWTException
      * @throws ParseException
      */
-    public IndeedAccessTokenClaimSet validate(
+    public IndeedAccessTokenClaimsSet validate(
             final IndeedAccessToken accessToken, final String[] expectedScopes)
             throws BadJWTException, ParseException {
         if (accessToken == null) {
@@ -54,7 +54,7 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
                         expectedScopes,
                         getMaxClockSkew());
         verifier.verify(claimsSet, null);
-        return new IndeedAccessTokenClaimSet(claimsSet);
+        return new IndeedAccessTokenClaimsSet(claimsSet);
     }
 
     /**

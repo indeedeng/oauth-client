@@ -26,7 +26,7 @@ import java.util.Set;
  * }
  * </pre>
  */
-public class IndeedAccessTokenClaimSet extends CommonClaimsSet {
+public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
     /** The expiration time claim name. */
     public static final String EXP_CLAIM_NAME = "exp";
     /** The scope claim name. */
@@ -57,7 +57,7 @@ public class IndeedAccessTokenClaimSet extends CommonClaimsSet {
         return STD_CLAIM_NAMES;
     }
 
-    public IndeedAccessTokenClaimSet(final JSONObject jsonObject) throws ParseException {
+    public IndeedAccessTokenClaimsSet(final JSONObject jsonObject) throws ParseException {
 
         super(jsonObject);
 
@@ -90,7 +90,7 @@ public class IndeedAccessTokenClaimSet extends CommonClaimsSet {
         }
     }
 
-    public IndeedAccessTokenClaimSet(final JWTClaimsSet jwtClaimsSet) throws ParseException {
+    public IndeedAccessTokenClaimsSet(final JWTClaimsSet jwtClaimsSet) throws ParseException {
         this(JSONObjectUtils.toJSONObject(jwtClaimsSet));
     }
 }

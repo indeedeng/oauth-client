@@ -1,6 +1,6 @@
 package com.indeed.authorization.client.validators;
 
-import com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet;
+import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
@@ -13,10 +13,10 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet.AZP_CLAIM_NAME;
-import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet.EXP_CLAIM_NAME;
-import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet.SCOPE_CLAIM_DELIMITER;
-import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet.SCOPE_CLAIM_NAME;
+import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.AZP_CLAIM_NAME;
+import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.EXP_CLAIM_NAME;
+import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.SCOPE_CLAIM_DELIMITER;
+import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.SCOPE_CLAIM_NAME;
 
 public class IndeedAccessTokenClaimsVerifier
         implements JWTClaimsSetVerifier<JWKSecurityContext>, ClockSkewAware {
@@ -75,7 +75,7 @@ public class IndeedAccessTokenClaimsVerifier
     public void verify(final JWTClaimsSet claimsSet, final JWKSecurityContext context)
             throws BadJWTException {
         try {
-            this.verifyInternal(new IndeedAccessTokenClaimSet(claimsSet));
+            this.verifyInternal(new IndeedAccessTokenClaimsSet(claimsSet));
         } catch (final ParseException e) {
             throw new BadJWTException(e.getMessage(), e);
         }
@@ -87,7 +87,7 @@ public class IndeedAccessTokenClaimsVerifier
      * @param claimsSet The JWT claims set. Not null.
      * @throws BadJWTException If the JWT claims set is rejected.
      */
-    private void verifyInternal(final IndeedAccessTokenClaimSet claimsSet) throws BadJWTException {
+    private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet) throws BadJWTException {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
             this.throwBadJWTException("Unexpected issuer claim", this.expectedIssuer, iss);

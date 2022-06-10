@@ -15,8 +15,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet.AZP_CLAIM_NAME;
-import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimSet.SCOPE_CLAIM_NAME;
+import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.AZP_CLAIM_NAME;
+import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.SCOPE_CLAIM_NAME;
 
 public class MockDataLibrary {
     public static class Tokens {
