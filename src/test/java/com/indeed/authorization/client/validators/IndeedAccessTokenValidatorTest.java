@@ -1,7 +1,7 @@
 package com.indeed.authorization.client.validators;
 
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.indeed.authorization.client.tokens.IndeedAccessToken;
-import com.nimbusds.jwt.proc.BadJWTException;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
@@ -49,7 +49,7 @@ class IndeedAccessTokenValidatorTest {
     @Test
     public void validate_withExpiredAccessToken_getBadJWTException() {
         assertThrows(
-                BadJWTException.class,
+                BadIndeedAccessTokenException.class,
                 () -> this.validator.validate(ACCESS_TOKEN, EXPECTED_SCOPES));
     }
 

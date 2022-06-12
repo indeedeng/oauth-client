@@ -9,7 +9,6 @@ import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
-import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.validators.AbstractJWTValidator;
@@ -30,12 +29,11 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
      * @param accessToken The generated access token. Must not be null.
      * @param expectedScopes The expected scopes to the access token. Must not be null.
      * @return {@link IndeedAccessTokenClaimsSet}
-     * @throws BadIndeedAccessTokenException
-     * @throws ParseException Access token is missing some claims
+     * @throws BadIndeedAccessTokenException Access token is invalid and/or missing claims
      */
     public IndeedAccessTokenClaimsSet validate(
             final IndeedAccessToken accessToken, final String[] expectedScopes)
-            throws BadJWTException, ParseException {
+            throws BadJWTException {
         if (accessToken == null) {
             throw new IllegalArgumentException("The access token issuer must not be null");
         }
