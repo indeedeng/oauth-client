@@ -8,6 +8,7 @@ import net.minidev.json.JSONObject;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -27,6 +28,8 @@ import java.util.Set;
  * </pre>
  */
 public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
+    private static final String PARSE_EXCEPTION_MESSAGE_FORMATTER = "Missing %s claim";
+
     /** The expiration time claim name. */
     public static final String EXP_CLAIM_NAME = "exp";
     /** The scope claim name. */
@@ -53,44 +56,24 @@ public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
      * @return The names of the standard top-level access token claims (read-only set).
      */
     public static Set<String> getStandardClaimNames() {
-
         return STD_CLAIM_NAMES;
     }
 
     public IndeedAccessTokenClaimsSet(final JSONObject jsonObject) throws ParseException {
-
         super(jsonObject);
 
-        if (getStringClaim(ISS_CLAIM_NAME) == null) {
-            throw new ParseException("Missing iss claim");
-        }
-
-        if (getStringClaim(SUB_CLAIM_NAME) == null) {
-            throw new ParseException("Missing sub claim");
-        }
-
-        if (getDateClaim(EXP_CLAIM_NAME) == null) {
-            throw new ParseException("Missing exp claim");
-        }
-
-        if (getDateClaim(IAT_CLAIM_NAME) == null) {
-            throw new ParseException("Missing iat claim");
-        }
-
-        if (getStringClaim(AZP_CLAIM_NAME) == null) {
-            throw new ParseException("Missing azp claim");
-        }
-
-        if (getStringClaim(SCOPE_CLAIM_NAME) == null) {
-            throw new ParseException("Missing scope claim");
-        }
-
-        if (getStringClaim(AUD_CLAIM_NAME) == null) {
-            throw new ParseException("Missing aud claim");
-        }
+        this.checkAllRequiredClaimsArePresent();
     }
 
     public IndeedAccessTokenClaimsSet(final JWTClaimsSet jwtClaimsSet) throws ParseException {
         this(JSONObjectUtils.toJSONObject(jwtClaimsSet));
+    }
+
+    private void checkAllRequiredClaimsArePresent() throws ParseException {
+        for (final String claim : getStandardClaimNames()) {
+            if (Objects.isNull(this.getClaim(claim))) {
+                throw new ParseException(String.format(PARSE_EXCEPTION_MESSAGE_FORMATTER, claim));
+            }
+        }
     }
 }
