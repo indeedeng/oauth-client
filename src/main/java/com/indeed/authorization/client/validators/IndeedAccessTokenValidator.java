@@ -30,8 +30,8 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
      * @param accessToken The generated access token. Must not be null.
      * @param expectedScopes The expected scopes to the access token. Must not be null.
      * @return {@link IndeedAccessTokenClaimsSet}
-     * @throws BadJWTException
-     * @throws ParseException
+     * @throws BadIndeedAccessTokenException
+     * @throws ParseException Access token is missing some claims
      */
     public IndeedAccessTokenClaimsSet validate(
             final IndeedAccessToken accessToken, final String[] expectedScopes)

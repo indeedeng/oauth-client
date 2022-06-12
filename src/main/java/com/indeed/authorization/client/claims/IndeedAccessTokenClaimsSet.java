@@ -1,7 +1,7 @@
 package com.indeed.authorization.client.claims;
 
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.claims.CommonClaimsSet;
 import net.minidev.json.JSONObject;
@@ -59,20 +59,20 @@ public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
         return STD_CLAIM_NAMES;
     }
 
-    public IndeedAccessTokenClaimsSet(final JSONObject jsonObject) throws ParseException {
+    public IndeedAccessTokenClaimsSet(final JSONObject jsonObject) throws BadIndeedAccessTokenException {
         super(jsonObject);
 
         this.checkAllRequiredClaimsArePresent();
     }
 
-    public IndeedAccessTokenClaimsSet(final JWTClaimsSet jwtClaimsSet) throws ParseException {
+    public IndeedAccessTokenClaimsSet(final JWTClaimsSet jwtClaimsSet) throws BadIndeedAccessTokenException {
         this(JSONObjectUtils.toJSONObject(jwtClaimsSet));
     }
 
-    private void checkAllRequiredClaimsArePresent() throws ParseException {
+    private void checkAllRequiredClaimsArePresent() throws BadIndeedAccessTokenException {
         for (final String claim : getStandardClaimNames()) {
             if (Objects.isNull(this.getClaim(claim))) {
-                throw new ParseException(String.format(PARSE_EXCEPTION_MESSAGE_FORMATTER, claim));
+                throw new BadIndeedAccessTokenException(String.format(PARSE_EXCEPTION_MESSAGE_FORMATTER, claim));
             }
         }
     }
