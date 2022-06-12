@@ -1,6 +1,10 @@
 package com.indeed.authorization.client.validators;
 
 import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
+import com.indeed.authorization.client.exceptions.AccessTokenExpiredException;
+import com.indeed.authorization.client.exceptions.InvalidAuthorizedPartyException;
+import com.indeed.authorization.client.exceptions.InvalidIssuerException;
+import com.indeed.authorization.client.exceptions.InvalidScopesException;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
@@ -20,6 +24,8 @@ import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.
 
 public class IndeedAccessTokenClaimsVerifier
         implements JWTClaimsSetVerifier<JWKSecurityContext>, ClockSkewAware {
+    private static final String ERROR_MESSAGE_FORMATTER = "expected: %s\nactual: %s";
+
     private final Issuer expectedIssuer;
     private final ClientID expectedClientID;
     private final String[] expectedScopes;
@@ -90,26 +96,22 @@ public class IndeedAccessTokenClaimsVerifier
     private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet) throws BadJWTException {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
-            this.throwBadJWTException("Unexpected issuer claim", this.expectedIssuer, iss);
+            throw new InvalidIssuerException(String.format(ERROR_MESSAGE_FORMATTER, this.expectedIssuer, iss));
         }
 
         final String azp = (String) claimsSet.getClaim(AZP_CLAIM_NAME);
         if (!isValidAuthorizedParty(azp)) {
-            this.throwBadJWTException(
-                    "Unexpected authorized party claim", this.expectedClientID, azp);
+            throw new InvalidAuthorizedPartyException(String.format(ERROR_MESSAGE_FORMATTER, this.expectedClientID, azp));
         }
 
         final String scope = (String) claimsSet.getClaim(SCOPE_CLAIM_NAME);
         if (!this.areScopesGranted(scope)) {
-            this.throwBadJWTException(
-                    "Requested scope were not all granted",
-                    Arrays.toString(this.expectedScopes),
-                    scope);
+            throw new InvalidScopesException(String.format(ERROR_MESSAGE_FORMATTER, Arrays.toString(this.expectedScopes), scope));
         }
 
         final long exp = (long) claimsSet.getClaim(EXP_CLAIM_NAME);
         if (this.isExpired(exp)) {
-            this.throwBadJWTException("Token is expired", System.currentTimeMillis(), exp);
+            throw new AccessTokenExpiredException(String.format(ERROR_MESSAGE_FORMATTER, System.currentTimeMillis(), exp));
         }
     }
 
@@ -128,12 +130,5 @@ public class IndeedAccessTokenClaimsVerifier
 
     private boolean isExpired(final long exp) {
         return System.currentTimeMillis() > exp;
-    }
-
-    private <T> void throwBadJWTException(
-            final String description, final T expected, final T actual) throws BadJWTException {
-        throw new BadJWTException(
-                String.format(
-                        "%s: \n" + "expected[%s]\n" + "actual[%s]", description, expected, actual));
     }
 }
