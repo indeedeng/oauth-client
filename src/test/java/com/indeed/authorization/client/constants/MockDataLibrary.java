@@ -81,7 +81,6 @@ public class MockDataLibrary {
                         .subject(Account.SUBJECT_ID)
                         .claim(AZP_CLAIM_NAME, AUTHORIZATION_PARTY)
                         .claim(SCOPE_CLAIM_NAME, RECEIVED_SCOPES)
-                        .audience(AUDIENCE)
                         .build();
         public static final JWTClaimsSet EMPTY_JWT_CLAIM_SET = new JWTClaimsSet.Builder().build();
     }
