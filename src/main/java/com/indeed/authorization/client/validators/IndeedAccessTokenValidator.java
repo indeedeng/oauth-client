@@ -13,7 +13,11 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.validators.AbstractJWTValidator;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+
+import static com.indeed.authorization.client.OAuthClient.DEFAULT_ISSUER_URL;
+import static com.indeed.authorization.client.OAuthClient.DEFAULT_JWKS_URL;
 
 public class IndeedAccessTokenValidator extends AbstractJWTValidator {
     private IndeedAccessTokenValidator(
@@ -75,5 +79,23 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
                 clientID,
                 new JWSVerificationKeySelector<JWKSecurityContext>(
                         IndeedAccessToken.JWS_ALGORITHM, new RemoteJWKSet<>(jwkSetUrl)));
+    }
+
+    /**
+     * Create an {@link IndeedAccessTokenValidator} Object.
+     *
+     * @return IllegalArgumentException Invalid arguments
+     */
+    public static IndeedAccessTokenValidator create(final ClientID clientID) {
+        try {
+            return new IndeedAccessTokenValidator(
+                    Issuer.parse(DEFAULT_ISSUER_URL),
+                    clientID,
+                    new JWSVerificationKeySelector<JWKSecurityContext>(
+                            IndeedAccessToken.JWS_ALGORITHM,
+                            new RemoteJWKSet<>(new URL(DEFAULT_JWKS_URL))));
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

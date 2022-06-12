@@ -19,13 +19,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class IndeedAccessTokenValidatorTest {
     private final IndeedAccessTokenValidator validator =
             IndeedAccessTokenValidator.create(ISSUER, new URL(JWKS_URI), CLIENT_ID);
+    private final IndeedAccessTokenValidator defaultValidator =
+            IndeedAccessTokenValidator.create(CLIENT_ID);
 
     IndeedAccessTokenValidatorTest() throws MalformedURLException {}
 
     @Test
     public void createIndeedAccessTokenValidator_withValidArguments_getNoException() {
-        assertDoesNotThrow(
-                () -> IndeedAccessTokenValidator.create(ISSUER, new URL(JWKS_URI), CLIENT_ID));
+        assertAll(
+                () -> {
+                    assertDoesNotThrow(
+                            () ->
+                                    IndeedAccessTokenValidator.create(
+                                            ISSUER, new URL(JWKS_URI), CLIENT_ID));
+                    assertDoesNotThrow(() -> IndeedAccessTokenValidator.create(CLIENT_ID));
+                });
     }
 
     @Test
@@ -43,20 +51,39 @@ class IndeedAccessTokenValidatorTest {
                             () ->
                                     IndeedAccessTokenValidator.create(
                                             ISSUER, new URL(JWKS_URI), null));
+                    assertThrows(
+                            IllegalArgumentException.class,
+                            () -> IndeedAccessTokenValidator.create(null));
                 });
     }
 
     @Test
     public void validate_withExpiredAccessToken_getBadJWTException() {
-        assertThrows(
-                BadIndeedAccessTokenException.class,
-                () -> this.validator.validate(ACCESS_TOKEN, EXPECTED_SCOPES));
+        assertAll(
+                () -> {
+                    assertThrows(
+                            BadIndeedAccessTokenException.class,
+                            () -> this.validator.validate(ACCESS_TOKEN, EXPECTED_SCOPES));
+                    assertThrows(
+                            BadIndeedAccessTokenException.class,
+                            () -> this.defaultValidator.validate(ACCESS_TOKEN, EXPECTED_SCOPES));
+                });
     }
 
     @Test
     public void validate_witInvalidAccessToken_getBadJWTException() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> this.validator.validate(new IndeedAccessToken(""), EXPECTED_SCOPES));
+        assertAll(
+                () -> {
+                    assertThrows(
+                            IllegalArgumentException.class,
+                            () ->
+                                    this.validator.validate(
+                                            new IndeedAccessToken(""), EXPECTED_SCOPES));
+                    assertThrows(
+                            IllegalArgumentException.class,
+                            () ->
+                                    this.defaultValidator.validate(
+                                            new IndeedAccessToken(""), EXPECTED_SCOPES));
+                });
     }
 }
