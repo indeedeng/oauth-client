@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.util.Objects;
 
 public abstract class OAuthClient {
+    public static final String DEFAULT_ISSUER_URL = "https://secure.indeed.com";
+    public static final String DEFAULT_JWKS_URL = "https://secure.indeed.com/.well-known/keys";
     public static final Integer DEFAULT_CONNECTION_TIMEOUT = 5000;
     public static final String EMPLOYER_PARAM_KEY = "employer";
 
