@@ -91,27 +91,39 @@ public class IndeedAccessTokenClaimsVerifier
      * Verifies selected or all claims from the specified JWT claims set.
      *
      * @param claimsSet The JWT claims set. Not null.
-     * @throws BadJWTException If the JWT claims set is rejected.
+     * @throws InvalidIssuerException If the iss claim is invalid
+     * @throws InvalidAuthorizedPartyException If the azp claim is invalid
+     * @throws InvalidScopesException If all the required scopes are not granted
+     * @throws AccessTokenExpiredException If the token is expired
      */
-    private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet) throws BadJWTException {
+    private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet) throws
+            InvalidIssuerException,
+            InvalidAuthorizedPartyException,
+            InvalidScopesException,
+            AccessTokenExpiredException {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
-            throw new InvalidIssuerException(String.format(ERROR_MESSAGE_FORMATTER, this.expectedIssuer, iss));
+            throw new InvalidIssuerException(
+                    String.format(ERROR_MESSAGE_FORMATTER, this.expectedIssuer, iss));
         }
 
         final String azp = (String) claimsSet.getClaim(AZP_CLAIM_NAME);
         if (!isValidAuthorizedParty(azp)) {
-            throw new InvalidAuthorizedPartyException(String.format(ERROR_MESSAGE_FORMATTER, this.expectedClientID, azp));
+            throw new InvalidAuthorizedPartyException(
+                    String.format(ERROR_MESSAGE_FORMATTER, this.expectedClientID, azp));
         }
 
         final String scope = (String) claimsSet.getClaim(SCOPE_CLAIM_NAME);
         if (!this.areScopesGranted(scope)) {
-            throw new InvalidScopesException(String.format(ERROR_MESSAGE_FORMATTER, Arrays.toString(this.expectedScopes), scope));
+            throw new InvalidScopesException(
+                    String.format(
+                            ERROR_MESSAGE_FORMATTER, Arrays.toString(this.expectedScopes), scope));
         }
 
         final long exp = (long) claimsSet.getClaim(EXP_CLAIM_NAME);
         if (this.isExpired(exp)) {
-            throw new AccessTokenExpiredException(String.format(ERROR_MESSAGE_FORMATTER, System.currentTimeMillis(), exp));
+            throw new AccessTokenExpiredException(
+                    String.format(ERROR_MESSAGE_FORMATTER, System.currentTimeMillis(), exp));
         }
     }
 
