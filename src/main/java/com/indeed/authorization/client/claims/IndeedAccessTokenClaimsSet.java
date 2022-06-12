@@ -34,7 +34,7 @@ public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
     /** The authorized party claim name. */
     public static final String AZP_CLAIM_NAME = "azp";
 
-    /** The names of the standard top-level ID token claims. */
+    /** The names of the standard top-level access token claims. */
     private static final Set<String> STD_CLAIM_NAMES;
 
     static {
@@ -62,31 +62,31 @@ public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
         super(jsonObject);
 
         if (getStringClaim(ISS_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid iss claim");
+            throw new ParseException("Missing iss claim");
         }
 
         if (getStringClaim(SUB_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid sub claim");
+            throw new ParseException("Missing sub claim");
         }
 
         if (getDateClaim(EXP_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid exp claim");
+            throw new ParseException("Missing exp claim");
         }
 
         if (getDateClaim(IAT_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid iat claim");
+            throw new ParseException("Missing iat claim");
         }
 
         if (getStringClaim(AZP_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid azp claim");
+            throw new ParseException("Missing azp claim");
         }
 
         if (getStringClaim(SCOPE_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid scope claim");
+            throw new ParseException("Missing scope claim");
         }
 
-        if (getStringClaim(ISS_CLAIM_NAME) == null) {
-            throw new ParseException("Missing or invalid iss claim");
+        if (getStringClaim(AUD_CLAIM_NAME) == null) {
+            throw new ParseException("Missing aud claim");
         }
     }
 
