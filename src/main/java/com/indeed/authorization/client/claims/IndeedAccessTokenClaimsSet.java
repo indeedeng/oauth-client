@@ -45,6 +45,7 @@ public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
         claimNames.add(EXP_CLAIM_NAME);
         claimNames.add(SCOPE_CLAIM_NAME);
         claimNames.add(AZP_CLAIM_NAME);
+        claimNames.remove(SUB_CLAIM_NAME);
         STD_CLAIM_NAMES = Collections.unmodifiableSet(claimNames);
     }
 
