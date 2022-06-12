@@ -1,6 +1,7 @@
 package com.indeed.authorization.client.validators;
 
 import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.indeed.authorization.client.tokens.IndeedAccessToken;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWKSecurityContext;
@@ -44,7 +45,7 @@ public class IndeedAccessTokenValidator extends AbstractJWTValidator {
         try {
             claimsSet = accessToken.getJWTClaimsSet();
         } catch (final java.text.ParseException e) {
-            throw new BadJWTException(e.getMessage(), e);
+            throw new BadIndeedAccessTokenException(e.getMessage(), e);
         }
 
         final IndeedAccessTokenClaimsVerifier verifier =

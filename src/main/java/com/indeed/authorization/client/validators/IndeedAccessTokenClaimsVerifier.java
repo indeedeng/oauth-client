@@ -1,10 +1,10 @@
 package com.indeed.authorization.client.validators;
 
 import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
-import com.indeed.authorization.client.exceptions.AccessTokenExpiredException;
-import com.indeed.authorization.client.exceptions.InvalidAuthorizedPartyException;
-import com.indeed.authorization.client.exceptions.InvalidIssuerException;
-import com.indeed.authorization.client.exceptions.InvalidScopesException;
+import com.indeed.authorization.client.exceptions.AccessTokenExpiredExceptionBad;
+import com.indeed.authorization.client.exceptions.InvalidAuthorizedPartyExceptionBad;
+import com.indeed.authorization.client.exceptions.InvalidIssuerExceptionBad;
+import com.indeed.authorization.client.exceptions.InvalidScopesExceptionBad;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
@@ -91,38 +91,38 @@ public class IndeedAccessTokenClaimsVerifier
      * Verifies selected or all claims from the specified JWT claims set.
      *
      * @param claimsSet The JWT claims set. Not null.
-     * @throws InvalidIssuerException If the iss claim is invalid
-     * @throws InvalidAuthorizedPartyException If the azp claim is invalid
-     * @throws InvalidScopesException If all the required scopes are not granted
-     * @throws AccessTokenExpiredException If the token is expired
+     * @throws InvalidIssuerExceptionBad If the iss claim is invalid
+     * @throws InvalidAuthorizedPartyExceptionBad If the azp claim is invalid
+     * @throws InvalidScopesExceptionBad If all the required scopes are not granted
+     * @throws AccessTokenExpiredExceptionBad If the token is expired
      */
     private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet) throws
-            InvalidIssuerException,
-            InvalidAuthorizedPartyException,
-            InvalidScopesException,
-            AccessTokenExpiredException {
+            InvalidIssuerExceptionBad,
+            InvalidAuthorizedPartyExceptionBad,
+            InvalidScopesExceptionBad,
+            AccessTokenExpiredExceptionBad {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
-            throw new InvalidIssuerException(
+            throw new InvalidIssuerExceptionBad(
                     String.format(ERROR_MESSAGE_FORMATTER, this.expectedIssuer, iss));
         }
 
         final String azp = (String) claimsSet.getClaim(AZP_CLAIM_NAME);
         if (!isValidAuthorizedParty(azp)) {
-            throw new InvalidAuthorizedPartyException(
+            throw new InvalidAuthorizedPartyExceptionBad(
                     String.format(ERROR_MESSAGE_FORMATTER, this.expectedClientID, azp));
         }
 
         final String scope = (String) claimsSet.getClaim(SCOPE_CLAIM_NAME);
         if (!this.areScopesGranted(scope)) {
-            throw new InvalidScopesException(
+            throw new InvalidScopesExceptionBad(
                     String.format(
                             ERROR_MESSAGE_FORMATTER, Arrays.toString(this.expectedScopes), scope));
         }
 
         final long exp = (long) claimsSet.getClaim(EXP_CLAIM_NAME);
         if (this.isExpired(exp)) {
-            throw new AccessTokenExpiredException(
+            throw new AccessTokenExpiredExceptionBad(
                     String.format(ERROR_MESSAGE_FORMATTER, System.currentTimeMillis(), exp));
         }
     }
