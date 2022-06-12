@@ -70,6 +70,7 @@ public class MockDataLibrary {
                 new String[] {"offline_access", "employer_access", "email"};
         public static final String RECEIVED_SCOPES = "offline_access employer_access email";
         public static final String AUTHORIZATION_PARTY = RAW_CLIENT_ID;
+        public static final String AUDIENCE = "AUDIENCE";
         public static final Set<String> EXPECTED_ACCESS_TOKEN_STANDARD_CLAIM_SET =
                 new HashSet<>(Arrays.asList("iat", "exp", "sub", "azp", "scope", "iss"));
         public static final JWTClaimsSet ACCESS_TOKEN_JWT_CLAIMS_SET =
@@ -80,6 +81,7 @@ public class MockDataLibrary {
                         .subject(Account.SUBJECT_ID)
                         .claim(AZP_CLAIM_NAME, AUTHORIZATION_PARTY)
                         .claim(SCOPE_CLAIM_NAME, RECEIVED_SCOPES)
+                        .audience(AUDIENCE)
                         .build();
         public static final JWTClaimsSet EMPTY_JWT_CLAIM_SET = new JWTClaimsSet.Builder().build();
     }

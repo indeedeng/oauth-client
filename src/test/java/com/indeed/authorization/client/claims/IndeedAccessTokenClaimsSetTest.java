@@ -1,6 +1,6 @@
 package com.indeed.authorization.client.claims;
 
-import com.nimbusds.oauth2.sdk.ParseException;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import org.junit.jupiter.api.Test;
 
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.ACCESS_TOKEN_JWT_CLAIMS_SET;
@@ -26,6 +26,7 @@ class IndeedAccessTokenClaimsSetTest {
     @Test
     public void createIndeedAccessTokenClaimSet_withEmptyClaimSet_getNoExceptions() {
         assertThrows(
-                ParseException.class, () -> new IndeedAccessTokenClaimsSet(EMPTY_JWT_CLAIM_SET));
+                BadIndeedAccessTokenException.class,
+                () -> new IndeedAccessTokenClaimsSet(EMPTY_JWT_CLAIM_SET));
     }
 }

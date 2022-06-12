@@ -59,20 +59,23 @@ public class IndeedAccessTokenClaimsSet extends CommonClaimsSet {
         return STD_CLAIM_NAMES;
     }
 
-    public IndeedAccessTokenClaimsSet(final JSONObject jsonObject) throws BadIndeedAccessTokenException {
+    public IndeedAccessTokenClaimsSet(final JSONObject jsonObject)
+            throws BadIndeedAccessTokenException {
         super(jsonObject);
 
         this.checkAllRequiredClaimsArePresent();
     }
 
-    public IndeedAccessTokenClaimsSet(final JWTClaimsSet jwtClaimsSet) throws BadIndeedAccessTokenException {
+    public IndeedAccessTokenClaimsSet(final JWTClaimsSet jwtClaimsSet)
+            throws BadIndeedAccessTokenException {
         this(JSONObjectUtils.toJSONObject(jwtClaimsSet));
     }
 
     private void checkAllRequiredClaimsArePresent() throws BadIndeedAccessTokenException {
         for (final String claim : getStandardClaimNames()) {
             if (Objects.isNull(this.getClaim(claim))) {
-                throw new BadIndeedAccessTokenException(String.format(PARSE_EXCEPTION_MESSAGE_FORMATTER, claim));
+                throw new BadIndeedAccessTokenException(
+                        String.format(PARSE_EXCEPTION_MESSAGE_FORMATTER, claim));
             }
         }
     }
