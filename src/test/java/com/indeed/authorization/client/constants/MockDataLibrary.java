@@ -32,11 +32,13 @@ public class MockDataLibrary {
         public static final String GOOD_NO_SCOPE_ACCESS_TOKEN_JWT =
                 "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyOlNVQkpFQ1RfSUQiLCJhY3QiOnsic3ViIjoiYXBwOkFEVkVSVElTRVJfSUQiLCJhcHBfYWNjb3VudCI6InVzZXI6U1VCSkVDVF9JRCJ9LCJhenAiOiJDTElFTlRfSUQiLCJzY29wZSI6IiIsImlzcyI6Imh0dHBzOi8vc2VjdXJlLmluZGVlZC5jb20iLCJleHAiOjI2NTEyNjQxMDYsImlhdCI6MTY1MTI2MDUwNn0.s6BCw8nnIlxVM4yVSAG4YPxs5N1ggcbblU2Qt94T_Jo";
         public static final IndeedAccessToken GOOD_FULL_SCOPE_ACCESS_TOKEN;
+        public static final IndeedAccessToken EXPIRED_ACCESS_TOKEN;
 
         static {
             try {
                 GOOD_FULL_SCOPE_ACCESS_TOKEN =
                         new IndeedAccessToken(GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT);
+                EXPIRED_ACCESS_TOKEN = new IndeedAccessToken(EXPIRED_ACCESS_TOKEN_JWT);
             } catch (final BadIndeedAccessTokenException e) {
                 throw new RuntimeException(e);
             }
