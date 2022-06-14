@@ -1,5 +1,6 @@
 package com.indeed.authorization.client.tokens;
 
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.nimbusds.jose.Header;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.util.Base64URL;
@@ -14,9 +15,13 @@ public class IndeedAccessToken extends BearerAccessToken implements JWT {
     public static final JWSAlgorithm JWS_ALGORITHM = JWSAlgorithm.ES256;
     private final JWT jwt;
 
-    public IndeedAccessToken(final String accessToken) throws ParseException {
+    public IndeedAccessToken(final String accessToken) throws BadIndeedAccessTokenException {
         super(accessToken, 0L, null, null);
-        this.jwt = JWTParser.parse(this.getValue());
+        try {
+            this.jwt = JWTParser.parse(this.getValue());
+        } catch (final ParseException e) {
+            throw new BadIndeedAccessTokenException(e);
+        }
     }
 
     public JWT getJwt() {

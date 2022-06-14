@@ -1,5 +1,6 @@
 package com.indeed.authorization.client.tokens;
 
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class IndeedAccessTokenTest {
     private final IndeedAccessToken accessToken = new IndeedAccessToken(ACCESS_TOKEN_JWT);
 
-    public IndeedAccessTokenTest() throws ParseException {}
+    public IndeedAccessTokenTest() throws BadIndeedAccessTokenException {}
 
     @Test
     public void createIndeedAccessToken_withValidAccessToken_getReturnJwt() {

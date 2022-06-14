@@ -2,6 +2,7 @@ package com.indeed.authorization.client.constants;
 
 import com.indeed.authorization.client.common.IndeedPrompt;
 import com.indeed.authorization.client.common.IndeedScope;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.indeed.authorization.client.tokens.IndeedAccessToken;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
@@ -30,7 +31,7 @@ public class MockDataLibrary {
         static {
             try {
                 ACCESS_TOKEN = new IndeedAccessToken(ACCESS_TOKEN_JWT);
-            } catch (final ParseException e) {
+            } catch (final BadIndeedAccessTokenException e) {
                 throw new RuntimeException(e);
             }
         }
