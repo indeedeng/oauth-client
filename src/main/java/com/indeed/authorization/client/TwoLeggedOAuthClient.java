@@ -30,6 +30,13 @@ import java.util.Objects;
 public class TwoLeggedOAuthClient extends OAuthClient {
 
     public static TwoLeggedOAuthClient create2LeggedOAuth2Client(
+            final String clientId, final String clientSecret)
+            throws GeneralException, IOException {
+        return new TwoLeggedOAuthClient(
+                clientId, clientSecret, DEFAULT_ISSUER_URL, DEFAULT_CONNECTION_TIMEOUT);
+    }
+
+    public static TwoLeggedOAuthClient create2LeggedOAuth2Client(
             final String clientId, final String clientSecret, final String hostname)
             throws GeneralException, IOException {
         return new TwoLeggedOAuthClient(
