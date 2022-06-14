@@ -1,7 +1,7 @@
 package com.indeed.authorization.client.validators;
 
 import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
-import com.indeed.authorization.client.exceptions.AccessTokenExpiredExceptionBad;
+import com.indeed.authorization.client.exceptions.AccessTokenExpiredException;
 import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.indeed.authorization.client.exceptions.InvalidAuthorizedPartyExceptionBad;
 import com.indeed.authorization.client.exceptions.InvalidIssuerExceptionBad;
@@ -84,7 +84,7 @@ public class IndeedAccessTokenClaimsVerifier
      * @throws InvalidIssuerExceptionBad If the iss claim is invalid
      * @throws InvalidAuthorizedPartyExceptionBad If the azp claim is invalid
      * @throws InvalidScopesExceptionBad If all the required scopes are not granted
-     * @throws AccessTokenExpiredExceptionBad If the token is expired
+     * @throws AccessTokenExpiredException If the token is expired
      */
     @Override
     public void verify(final JWTClaimsSet claimsSet, final JWKSecurityContext context)
@@ -99,11 +99,11 @@ public class IndeedAccessTokenClaimsVerifier
      * @throws InvalidIssuerExceptionBad If the iss claim is invalid
      * @throws InvalidAuthorizedPartyExceptionBad If the azp claim is invalid
      * @throws InvalidScopesExceptionBad If all the required scopes are not granted
-     * @throws AccessTokenExpiredExceptionBad If the token is expired
+     * @throws AccessTokenExpiredException If the token is expired
      */
     private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet)
             throws InvalidIssuerExceptionBad, InvalidAuthorizedPartyExceptionBad,
-                    InvalidScopesExceptionBad, AccessTokenExpiredExceptionBad {
+                    InvalidScopesExceptionBad, AccessTokenExpiredException {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
             throw new InvalidIssuerExceptionBad(
@@ -125,7 +125,7 @@ public class IndeedAccessTokenClaimsVerifier
 
         final long exp = (long) claimsSet.getClaim(EXP_CLAIM_NAME);
         if (this.isExpired(exp)) {
-            throw new AccessTokenExpiredExceptionBad(
+            throw new AccessTokenExpiredException(
                     String.format(ERROR_MESSAGE_FORMATTER, System.currentTimeMillis(), exp));
         }
     }
