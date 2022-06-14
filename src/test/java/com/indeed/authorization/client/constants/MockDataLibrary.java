@@ -8,8 +8,11 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import java.util.Arrays;
@@ -32,7 +35,8 @@ public class MockDataLibrary {
 
         static {
             try {
-                GOOD_FULL_SCOPE_ACCESS_TOKEN = new IndeedAccessToken(GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT);
+                GOOD_FULL_SCOPE_ACCESS_TOKEN =
+                        new IndeedAccessToken(GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT);
             } catch (final BadIndeedAccessTokenException e) {
                 throw new RuntimeException(e);
             }
@@ -42,7 +46,8 @@ public class MockDataLibrary {
                 new HTTPResponse(HTTPResponse.SC_OK);
         public static final HTTPResponse FAILED_HTTP_RESPONSE =
                 new HTTPResponse(HTTPResponse.SC_SERVER_ERROR);
-        public static final OIDCTokens OIDC_TOKENS_ACCESS = new OIDCTokens(GOOD_FULL_SCOPE_ACCESS_TOKEN, null);
+        public static final OIDCTokens OIDC_TOKENS_ACCESS =
+                new OIDCTokens(GOOD_FULL_SCOPE_ACCESS_TOKEN, null);
         public static final OIDCTokenResponse OIDC_TOKEN_RESPONSE =
                 new OIDCTokenResponse(OIDC_TOKENS_ACCESS);
         public static final String ID_TOKEN = "ID_TOKEN";
@@ -103,9 +108,12 @@ public class MockDataLibrary {
     }
 
     public static class Account {
-
         public static final String EMPLOYER_ID = "EMPLOYER_ID";
         public static final String SUBJECT_ID = "SUBJECT_ID";
+
+        public static final UserInfo USER_INFO = new UserInfo(new Subject(SUBJECT_ID));
+        public static final UserInfoSuccessResponse USER_INFO_SUCCESS_RESPONSE =
+                new UserInfoSuccessResponse(USER_INFO);
     }
 
     public static class Error {

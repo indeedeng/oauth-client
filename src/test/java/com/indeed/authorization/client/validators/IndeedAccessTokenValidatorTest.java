@@ -63,10 +63,14 @@ class IndeedAccessTokenValidatorTest {
                 () -> {
                     assertThrows(
                             BadIndeedAccessTokenException.class,
-                            () -> this.validator.validate(GOOD_FULL_SCOPE_ACCESS_TOKEN, EXPECTED_SCOPES));
+                            () ->
+                                    this.validator.validate(
+                                            GOOD_FULL_SCOPE_ACCESS_TOKEN, EXPECTED_SCOPES));
                     assertThrows(
                             BadIndeedAccessTokenException.class,
-                            () -> this.defaultValidator.validate(GOOD_FULL_SCOPE_ACCESS_TOKEN, EXPECTED_SCOPES));
+                            () ->
+                                    this.defaultValidator.validate(
+                                            GOOD_FULL_SCOPE_ACCESS_TOKEN, EXPECTED_SCOPES));
                 });
     }
 

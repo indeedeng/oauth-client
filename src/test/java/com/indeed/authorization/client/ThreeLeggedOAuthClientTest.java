@@ -1,16 +1,22 @@
 package com.indeed.authorization.client;
 
+import com.indeed.authorization.client.exceptions.AccessTokenExpiredException;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
+import com.indeed.authorization.client.exceptions.InvalidScopesException;
 import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
 import com.nimbusds.oauth2.sdk.GeneralException;
 import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.indeed.authorization.client.ThreeLeggedOAuthClient.create3LeggedOAuth2Client;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Account.EMPLOYER_ID;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Account.USER_INFO;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Account.USER_INFO_SUCCESS_RESPONSE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CLIENT_SECRET;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CODE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.HOSTNAME;
@@ -22,6 +28,9 @@ import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.SE
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.STATE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.THREE_LEGGED_ALL_AUTH_SCOPES;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.THREE_LEGGED_EMPTY_AUTH_SCOPE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.EXPIRED_ACCESS_TOKEN_JWT;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.GOOD_NO_SCOPE_ACCESS_TOKEN_JWT;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS_REFRESH;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ID_ACCESS;
@@ -197,5 +206,31 @@ class ThreeLeggedOAuthClientTest {
         assertThrows(
                 OAuthBadResponseException.class,
                 () -> threeLeggedOAuthClient.refreshOAuthCredentials(REFRESH_TOKEN.getValue()));
+    }
+
+    @Test
+    void getUserInfo_withExpiredAccessToken_thenThrowAccessTokenExpiredException() {
+        assertThrows(
+                AccessTokenExpiredException.class,
+                () -> threeLeggedOAuthClient.getUserInfo(EXPIRED_ACCESS_TOKEN_JWT, true));
+    }
+
+    @Test
+    void getUserInfo_withNoScopeAccessTokenAndEmailRequired_thenThrowAccessTokenExpiredException() {
+        assertThrows(
+                InvalidScopesException.class,
+                () -> threeLeggedOAuthClient.getUserInfo(GOOD_NO_SCOPE_ACCESS_TOKEN_JWT, true));
+    }
+
+    @Test
+    void getUserInfo_withValidAccessTokenAndEmailRequired_thenReturnValidUserToken()
+            throws MalformedURLException, OAuthBadResponseException, BadIndeedAccessTokenException {
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(USER_INFO_SUCCESS_RESPONSE)
+                .when(threeLeggedOAuthClient)
+                .getUserInfoSuccessResponse(any());
+        assertEquals(
+                USER_INFO,
+                threeLeggedOAuthClient.getUserInfo(GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT, true));
     }
 }
