@@ -18,11 +18,15 @@ package com.indeed.authorization.client;
 
 import com.indeed.authorization.client.common.IndeedPrompt;
 import com.indeed.authorization.client.common.IndeedScope;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
+import com.indeed.authorization.client.tokens.IndeedAccessToken;
+import com.indeed.authorization.client.validators.IndeedAccessTokenValidator;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.GeneralException;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.RefreshTokenGrant;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.TokenRequest;
@@ -30,9 +34,14 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoRequest;
+import com.nimbusds.openid.connect.sdk.UserInfoResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -48,6 +57,15 @@ import static com.indeed.authorization.client.common.IndeedPrompt.PROMPT_KEY;
  */
 public class ThreeLeggedOAuthClient extends OAuthClient {
 
+    private ThreeLeggedOAuthClient(
+            final String clientId,
+            final String clientSecret,
+            final String hostname,
+            final int timeout)
+            throws GeneralException, IOException {
+        super(clientId, clientSecret, hostname, timeout);
+    }
+
     public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
             final String clientId, final String clientSecret, final String hostname)
             throws GeneralException, IOException {
@@ -62,15 +80,6 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
             final int timeout)
             throws GeneralException, IOException {
         return new ThreeLeggedOAuthClient(clientId, clientSecret, hostname, timeout);
-    }
-
-    private ThreeLeggedOAuthClient(
-            final String clientId,
-            final String clientSecret,
-            final String hostname,
-            final int timeout)
-            throws GeneralException, IOException {
-        super(clientId, clientSecret, hostname, timeout);
     }
 
     /**
@@ -204,5 +213,53 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
         final HTTPResponse httpResponse = executeRequest(tokenRequest);
         final OIDCTokenResponse oidcTokenResponse = getOIDCTokenResponse(httpResponse);
         return oidcTokenResponse.getOIDCTokens();
+    }
+
+    /**
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/3-legged-oauth#get-user-info">https://developer.indeed.com/docs/authorization/3-legged-oauth#get-user-info</a>
+     *
+     * @param accessToken The access token received from Indeed 3-legged-oauth. Must not be null.
+     * @param email Whether you expect user email information to be included.
+     * @return UserInfo
+     * @throws OAuthBadResponseException If the request fails or the response is not 2xx
+     * @throws MalformedURLException If the url collected from /.well-known/openid-configuration is
+     *     incorrect
+     * @throws BadIndeedAccessTokenException If the access token is expired, revoked, or invalid
+     */
+    public UserInfo getUserInfo(final String accessToken, final boolean email)
+            throws OAuthBadResponseException, BadIndeedAccessTokenException, MalformedURLException {
+        Objects.requireNonNull(accessToken, "accessToken must not be null");
+        final IndeedAccessTokenValidator indeedAccessTokenValidator =
+                IndeedAccessTokenValidator.create(
+                        oidcProviderMetadata.getIssuer(),
+                        oidcProviderMetadata.getJWKSetURI().toURL(),
+                        clientAuthentication.getClientID());
+        final IndeedAccessToken indeedAccessToken = new IndeedAccessToken(accessToken);
+        indeedAccessTokenValidator.validate(
+                indeedAccessToken, email ? new String[] {IndeedScope.EMAIL} : new String[] {});
+        final UserInfoRequest userInfoRequest =
+                new UserInfoRequest(
+                        oidcProviderMetadata.getUserInfoEndpointURI(), indeedAccessToken);
+        final HTTPResponse httpResponse = executeRequest(userInfoRequest);
+        final UserInfoSuccessResponse userInfoSuccessResponse =
+                getUserInfoSuccessResponse(httpResponse);
+        return userInfoSuccessResponse.getUserInfo();
+    }
+
+    protected UserInfoSuccessResponse getUserInfoSuccessResponse(final HTTPResponse httpResponse)
+            throws OAuthBadResponseException {
+        final UserInfoResponse userInfoResponse;
+
+        try {
+            userInfoResponse = UserInfoResponse.parse(httpResponse);
+        } catch (final ParseException e) {
+            throw new OAuthBadResponseException(e);
+        }
+
+        if (!userInfoResponse.indicatesSuccess()) {
+            throw new OAuthBadResponseException(userInfoResponse.toErrorResponse());
+        }
+        return userInfoResponse.toSuccessResponse();
     }
 }

@@ -17,10 +17,9 @@
 package com.indeed.authorization.client;
 
 import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
+import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.TokenRequest;
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
@@ -38,9 +37,8 @@ public abstract class OAuthClient {
     public static final String DEFAULT_JWKS_URL = "https://secure.indeed.com/.well-known/keys";
     public static final Integer DEFAULT_CONNECTION_TIMEOUT = 5000;
     public static final String EMPLOYER_PARAM_KEY = "employer";
-
-    protected ClientAuthentication clientAuthentication;
     protected final OIDCProviderMetadata oidcProviderMetadata;
+    protected ClientAuthentication clientAuthentication;
 
     public OAuthClient(
             final String clientId,
@@ -57,7 +55,7 @@ public abstract class OAuthClient {
                 OIDCProviderMetadata.resolve(new Issuer(hostname), timeout, timeout);
     }
 
-    protected HTTPResponse executeRequest(final TokenRequest request)
+    protected HTTPResponse executeRequest(final AbstractRequest request)
             throws OAuthBadResponseException {
         try {
             return request.toHTTPRequest().send();
@@ -68,7 +66,7 @@ public abstract class OAuthClient {
 
     protected OIDCTokenResponse getOIDCTokenResponse(final HTTPResponse httpResponse)
             throws OAuthBadResponseException {
-        final TokenResponse tokenResponse;
+        final OIDCTokenResponse tokenResponse;
 
         try {
             tokenResponse = OIDCTokenResponse.parse(httpResponse);
@@ -79,6 +77,6 @@ public abstract class OAuthClient {
         if (!tokenResponse.indicatesSuccess()) {
             throw new OAuthBadResponseException(tokenResponse.toErrorResponse());
         }
-        return (OIDCTokenResponse) tokenResponse.toSuccessResponse();
+        return tokenResponse.toSuccessResponse();
     }
 }
