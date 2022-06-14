@@ -12,7 +12,6 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -51,10 +50,10 @@ public class MockDataLibrary {
         public static final RefreshToken REFRESH_TOKEN = new RefreshToken("REFRESH_TOKEN");
         public static final OIDCTokens OIDC_TOKENS_ID_ACCESS_REFRESH =
                 new OIDCTokens(ID_TOKEN, ACCESS_TOKEN, REFRESH_TOKEN);
-        public static final OIDCTokens OIDC_TOKENS_ACCESS_REFRESH =
-                new OIDCTokens(ACCESS_TOKEN, REFRESH_TOKEN);
         public static final OIDCTokenResponse REFRESHED_OIDC_TOKEN_ID_ACCESS_RESPONSE =
                 new OIDCTokenResponse(OIDC_TOKENS_ID_ACCESS_REFRESH);
+        public static final OIDCTokens OIDC_TOKENS_ACCESS_REFRESH =
+                new OIDCTokens(ACCESS_TOKEN, REFRESH_TOKEN);
         public static final OIDCTokenResponse REFRESHED_OIDC_TOKEN_ACCESS_ACCESS_RESPONSE =
                 new OIDCTokenResponse(OIDC_TOKENS_ACCESS_REFRESH);
     }
@@ -85,9 +84,6 @@ public class MockDataLibrary {
                 new String[] {"offline_access", "employer_access", "email"};
         public static final String RECEIVED_SCOPES = "offline_access employer_access email";
         public static final String AUTHORIZATION_PARTY = RAW_CLIENT_ID;
-        public static final String AUDIENCE = "AUDIENCE";
-        public static final Set<String> EXPECTED_ACCESS_TOKEN_STANDARD_CLAIM_SET =
-                new HashSet<>(Arrays.asList("iat", "exp", "sub", "azp", "scope", "iss"));
         public static final JWTClaimsSet ACCESS_TOKEN_JWT_CLAIMS_SET =
                 new JWTClaimsSet.Builder()
                         .expirationTime(Utils.DATE)
@@ -97,6 +93,9 @@ public class MockDataLibrary {
                         .claim(AZP_CLAIM_NAME, AUTHORIZATION_PARTY)
                         .claim(SCOPE_CLAIM_NAME, RECEIVED_SCOPES)
                         .build();
+        public static final String AUDIENCE = "AUDIENCE";
+        public static final Set<String> EXPECTED_ACCESS_TOKEN_STANDARD_CLAIM_SET =
+                new HashSet<>(Arrays.asList("iat", "exp", "sub", "azp", "scope", "iss"));
         public static final JWTClaimsSet EMPTY_JWT_CLAIM_SET = new JWTClaimsSet.Builder().build();
     }
 
