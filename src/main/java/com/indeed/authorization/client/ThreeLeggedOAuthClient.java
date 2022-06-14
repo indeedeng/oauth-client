@@ -42,6 +42,13 @@ import static com.indeed.authorization.client.common.IndeedPrompt.PROMPT_KEY;
 public class ThreeLeggedOAuthClient extends OAuthClient {
 
     public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
+            final String clientId, final String clientSecret)
+            throws GeneralException, IOException {
+        return new ThreeLeggedOAuthClient(
+                clientId, clientSecret, DEFAULT_ISSUER_URL, DEFAULT_CONNECTION_TIMEOUT);
+    }
+
+    public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
             final String clientId, final String clientSecret, final String hostname)
             throws GeneralException, IOException {
         return new ThreeLeggedOAuthClient(
