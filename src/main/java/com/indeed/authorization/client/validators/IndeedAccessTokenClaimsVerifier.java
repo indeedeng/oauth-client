@@ -102,8 +102,8 @@ public class IndeedAccessTokenClaimsVerifier
      * @throws AccessTokenExpiredException If the token is expired
      */
     private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet)
-            throws InvalidIssuerException, InvalidAuthorizedPartyException,
-            InvalidScopesException, AccessTokenExpiredException {
+            throws InvalidIssuerException, InvalidAuthorizedPartyException, InvalidScopesException,
+                    AccessTokenExpiredException {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
             throw new InvalidIssuerException(
@@ -144,6 +144,6 @@ public class IndeedAccessTokenClaimsVerifier
     }
 
     private boolean isExpired(final long exp) {
-        return System.currentTimeMillis() > exp;
+        return System.currentTimeMillis() / 1000 > exp;
     }
 }
