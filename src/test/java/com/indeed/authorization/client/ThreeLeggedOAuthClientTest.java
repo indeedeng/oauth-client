@@ -10,24 +10,24 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.indeed.authorization.client.ThreeLeggedOAuthClient.create3LeggedOAuth2Client;
-import static com.indeed.authorization.client.constants.MockDataLibrary.CLIENT_ID;
-import static com.indeed.authorization.client.constants.MockDataLibrary.CLIENT_SECRET;
-import static com.indeed.authorization.client.constants.MockDataLibrary.CODE;
-import static com.indeed.authorization.client.constants.MockDataLibrary.EMPLOYER_ID;
-import static com.indeed.authorization.client.constants.MockDataLibrary.EMPTY_STRING;
-import static com.indeed.authorization.client.constants.MockDataLibrary.HOSTNAME;
-import static com.indeed.authorization.client.constants.MockDataLibrary.NULL_AUTH_PROMPT;
-import static com.indeed.authorization.client.constants.MockDataLibrary.NULL_STATE;
-import static com.indeed.authorization.client.constants.MockDataLibrary.OIDC_TOKENS_ACCESS;
-import static com.indeed.authorization.client.constants.MockDataLibrary.OIDC_TOKENS_ACCESS_REFRESH;
-import static com.indeed.authorization.client.constants.MockDataLibrary.OIDC_TOKENS_ID_ACCESS;
-import static com.indeed.authorization.client.constants.MockDataLibrary.OIDC_TOKENS_ID_ACCESS_REFRESH;
-import static com.indeed.authorization.client.constants.MockDataLibrary.REDIRECT_URI;
-import static com.indeed.authorization.client.constants.MockDataLibrary.REFRESH_TOKEN;
-import static com.indeed.authorization.client.constants.MockDataLibrary.SELECT_EMPLOYER_AUTH_PROMPT;
-import static com.indeed.authorization.client.constants.MockDataLibrary.STATE;
-import static com.indeed.authorization.client.constants.MockDataLibrary.THREE_LEGGED_ALL_AUTH_SCOPES;
-import static com.indeed.authorization.client.constants.MockDataLibrary.THREE_LEGGED_EMPTY_AUTH_SCOPE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Account.EMPLOYER_ID;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CLIENT_SECRET;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CODE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.HOSTNAME;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.NULL_AUTH_PROMPT;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.NULL_STATE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.RAW_CLIENT_ID;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.REDIRECT_URI;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.SELECT_EMPLOYER_AUTH_PROMPT;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.STATE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.THREE_LEGGED_ALL_AUTH_SCOPES;
+import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.THREE_LEGGED_EMPTY_AUTH_SCOPE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS_REFRESH;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ID_ACCESS;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ID_ACCESS_REFRESH;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.REFRESH_TOKEN;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Utils.EMPTY_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +39,7 @@ class ThreeLeggedOAuthClientTest {
 
     public ThreeLeggedOAuthClientTest() throws GeneralException, IOException {
         threeLeggedOAuthClient =
-                PowerMockito.spy(create3LeggedOAuth2Client(CLIENT_ID, CLIENT_SECRET, HOSTNAME));
+                PowerMockito.spy(create3LeggedOAuth2Client(RAW_CLIENT_ID, CLIENT_SECRET, HOSTNAME));
     }
 
     @Test

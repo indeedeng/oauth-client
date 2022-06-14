@@ -19,6 +19,7 @@ package com.indeed.authorization.client.common;
 /** @see com.nimbusds.openid.connect.sdk.Prompt */
 public class IndeedPrompt {
     public static final String PROMPT_KEY = "prompt";
+
     /** Enumeration of the prompt types. */
     public enum Type {
         /**
