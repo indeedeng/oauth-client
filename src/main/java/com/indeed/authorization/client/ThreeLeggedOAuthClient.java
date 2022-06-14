@@ -26,19 +26,26 @@ import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.RefreshTokenGrant;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.indeed.authorization.client.common.IndeedPrompt.PROMPT_KEY;
 
-/** https://developer.indeed.com/docs/authorization/3-legged-oauth */
+/**
+ * <a
+ * href="https://developer.indeed.com/docs/authorization/3-legged-oauth">https://developer.indeed.com/docs/authorization/3-legged-oauth</a>
+ */
 public class ThreeLeggedOAuthClient extends OAuthClient {
 
     public static ThreeLeggedOAuthClient create3LeggedOAuth2Client(
@@ -67,7 +74,8 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret">https://developer.indeed.com/docs/authorization/3-legged-oauth#get-a-client-id-and-secret</a>
      *
      * @param state A parameter used to prevent CSRF attacks. This can be any unique string your
      *     application creates to maintain state between the request and callback. Indeed passes
@@ -95,10 +103,11 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
             final String redirectUrl)
             throws URISyntaxException {
         Objects.requireNonNull(redirectUrl, "redirectUrl must not be null");
+        final ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
+        final AuthorizationRequest.Builder authorizationRequestBuilder =
+                new AuthorizationRequest.Builder(responseType, clientAuthentication.getClientID());
         final AuthorizationRequest request =
-                new AuthorizationRequest.Builder(
-                                new ResponseType(ResponseType.Value.CODE),
-                                clientAuthentication.getClientID())
+                authorizationRequestBuilder
                         .scope(new IndeedScope(scopes))
                         .state(new State(state))
                         .redirectionURI(new URI(redirectUrl))
@@ -109,12 +118,13 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token">https://developer.indeed.com/docs/authorization/3-legged-oauth#request-your-users-access-token</a>
      *
      * @param code The authorization code. It is valid for 10 minutes from the time when you have
-     *     received it.
+     *     received it. Must not be null.
      * @param redirectUrl This is the page on your site that captures the authorization code. It
-     *     must match one of the redirect URLs registered with your application.
+     *     must match one of the redirect URLs registered with your application. Must not be null.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      * @throws URISyntaxException If the given redirect url violates RFC2396
@@ -122,20 +132,29 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
     public OIDCTokens getUserOAuthCredentials(final String code, final String redirectUrl)
             throws OAuthBadResponseException, URISyntaxException {
         Objects.requireNonNull(code, "code must not be null");
-        return executeTokenRequest(
+        Objects.requireNonNull(redirectUrl, "redirectUrl must not be null");
+        final AuthorizationCodeGrant authorizationCodeGrant =
+                new AuthorizationCodeGrant(new AuthorizationCode(code), new URI(redirectUrl));
+        final TokenRequest tokenRequest =
                 new TokenRequest(
                         oidcProviderMetadata.getTokenEndpointURI(),
                         clientAuthentication,
-                        new AuthorizationCodeGrant(
-                                new AuthorizationCode(code), new URI(redirectUrl))));
+                        authorizationCodeGrant);
+        final HTTPResponse httpResponse = executeRequest(tokenRequest);
+        final OIDCTokenResponse oidcTokenResponse = getOIDCTokenResponse(httpResponse);
+        return oidcTokenResponse.getOIDCTokens();
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen">https://developer.indeed.com/docs/authorization/3-legged-oauth#display-the-indeed-employer-selection-screen</a>
      *
      * @param code The authorization code. It is valid for 10 minutes from the time when you have
-     *     received it.
-     * @param employerId The id that represents the employer the user has selected.
+     *     received it. Must not be null.
+     * @param redirectUrl This is the page on your site that captures the authorization code. It
+     *     must match one of the redirect URLs registered with your application. Must not be null.
+     * @param employerId The id that represents the employer the user has selected. Must not be
+     *     null.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      * @throws URISyntaxException If the given redirect url violates RFC2396
@@ -144,33 +163,46 @@ public class ThreeLeggedOAuthClient extends OAuthClient {
             final String code, final String redirectUrl, final String employerId)
             throws URISyntaxException, OAuthBadResponseException {
         Objects.requireNonNull(code, "code must not be null");
+        Objects.requireNonNull(redirectUrl, "redirectUrl must not be null");
         Objects.requireNonNull(employerId, "employerId must not be null");
-        return executeTokenRequest(
+        final AuthorizationCodeGrant authorizationCodeGrant =
+                new AuthorizationCodeGrant(new AuthorizationCode(code), new URI(redirectUrl));
+        final Map<String, List<String>> employerParam =
+                Collections.singletonMap(EMPLOYER_PARAM_KEY, Collections.singletonList(employerId));
+        final TokenRequest tokenRequest =
                 new TokenRequest(
                         oidcProviderMetadata.getTokenEndpointURI(),
                         clientAuthentication,
-                        new AuthorizationCodeGrant(
-                                new AuthorizationCode(code), new URI(redirectUrl)),
+                        authorizationCodeGrant,
                         null,
                         null,
-                        Collections.singletonMap(
-                                EMPLOYER_PARAM_KEY, Collections.singletonList(employerId))));
+                        employerParam);
+        final HTTPResponse httpResponse = executeRequest(tokenRequest);
+        final OIDCTokenResponse oidcTokenResponse = getOIDCTokenResponse(httpResponse);
+        return oidcTokenResponse.getOIDCTokens();
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/3-legged-oauth#refresh-your-token
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/3-legged-oauth#refresh-your-token">https://developer.indeed.com/docs/authorization/3-legged-oauth#refresh-your-token</a>
      *
-     * @param refreshToken The refresh token returned with your user's access token
+     * @param refreshToken The refresh token returned with your user's access token. Must not be
+     *     null.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      */
     public OIDCTokens refreshOAuthCredentials(final String refreshToken)
             throws OAuthBadResponseException {
         Objects.requireNonNull(refreshToken, "refreshToken must not be null");
-        return executeTokenRequest(
+        final RefreshTokenGrant refreshTokenGrant =
+                new RefreshTokenGrant(new RefreshToken(refreshToken));
+        final TokenRequest tokenRequest =
                 new TokenRequest(
                         oidcProviderMetadata.getTokenEndpointURI(),
                         clientAuthentication,
-                        new RefreshTokenGrant(new RefreshToken(refreshToken))));
+                        refreshTokenGrant);
+        final HTTPResponse httpResponse = executeRequest(tokenRequest);
+        final OIDCTokenResponse oidcTokenResponse = getOIDCTokenResponse(httpResponse);
+        return oidcTokenResponse.getOIDCTokens();
     }
 }

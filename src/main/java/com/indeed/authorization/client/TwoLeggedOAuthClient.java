@@ -21,10 +21,14 @@ import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
 import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
 import com.nimbusds.oauth2.sdk.GeneralException;
 import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class TwoLeggedOAuthClient extends OAuthClient {
@@ -55,32 +59,38 @@ public class TwoLeggedOAuthClient extends OAuthClient {
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token">https://developer.indeed.com/docs/authorization/2-legged-oauth#get-an-access-token</a>
      *
      * @param scopes To get a list of employer accounts associated with the user that registered the
      *     app or to get an access token for one of these associated employer accounts, pass
-     *     employer_access.
+     *     employer_access. Must not be null.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      */
     public OIDCTokens getAppOAuthCredentials(final String[] scopes)
             throws OAuthBadResponseException {
         Objects.requireNonNull(scopes, "scopes must not be null");
-        return executeTokenRequest(
+        final TokenRequest tokenRequest =
                 new TokenRequest(
                         oidcProviderMetadata.getTokenEndpointURI(),
                         clientAuthentication,
                         new ClientCredentialsGrant(),
-                        new IndeedScope(scopes)));
+                        new IndeedScope(scopes));
+        final HTTPResponse httpResponse = executeRequest(tokenRequest);
+        final OIDCTokenResponse oidcTokenResponse = getOIDCTokenResponse(httpResponse);
+        return oidcTokenResponse.getOIDCTokens();
     }
 
     /**
-     * https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer
+     * <a
+     * href="https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer">https://developer.indeed.com/docs/authorization/2-legged-oauth#represent-an-employer</a>
      *
-     * @param employerID The id that represents the employer the user has selected.
+     * @param employerID The id that represents the employer the user has selected. Must not be
+     *     null.
      * @param scopes To get a list of employer accounts associated with the user that registered the
      *     app or to get an access token for one of these associated employer accounts, pass
-     *     employer_access.
+     *     employer_access. Must not be null.
      * @return OIDCTokens
      * @throws OAuthBadResponseException If the response is not 2xx
      */
@@ -88,14 +98,18 @@ public class TwoLeggedOAuthClient extends OAuthClient {
             throws OAuthBadResponseException {
         Objects.requireNonNull(employerID, "employerID must not be null");
         Objects.requireNonNull(scopes, "scopes must not be null");
-        return executeTokenRequest(
+        final Map<String, List<String>> employerParam =
+                Collections.singletonMap(EMPLOYER_PARAM_KEY, Collections.singletonList(employerID));
+        final TokenRequest tokenRequest =
                 new TokenRequest(
                         oidcProviderMetadata.getTokenEndpointURI(),
                         clientAuthentication,
                         new ClientCredentialsGrant(),
                         new IndeedScope(scopes),
                         null,
-                        Collections.singletonMap(
-                                EMPLOYER_PARAM_KEY, Collections.singletonList(employerID))));
+                        employerParam);
+        final HTTPResponse httpResponse = executeRequest(tokenRequest);
+        final OIDCTokenResponse oidcTokenResponse = getOIDCTokenResponse(httpResponse);
+        return oidcTokenResponse.getOIDCTokens();
     }
 }

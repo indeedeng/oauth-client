@@ -4,9 +4,11 @@ import com.indeed.authorization.client.common.IndeedPrompt;
 import com.indeed.authorization.client.common.IndeedScope;
 import com.indeed.authorization.client.tokens.IndeedAccessToken;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import java.text.ParseException;
@@ -33,15 +35,27 @@ public class MockDataLibrary {
             }
         }
 
+        public static final HTTPResponse SUCCESS_HTTP_RESPONSE =
+                new HTTPResponse(HTTPResponse.SC_OK);
+        public static final HTTPResponse FAILED_HTTP_RESPONSE =
+                new HTTPResponse(HTTPResponse.SC_SERVER_ERROR);
         public static final OIDCTokens OIDC_TOKENS_ACCESS = new OIDCTokens(ACCESS_TOKEN, null);
+        public static final OIDCTokenResponse OIDC_TOKEN_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ACCESS);
         public static final String ID_TOKEN = "ID_TOKEN";
         public static final OIDCTokens OIDC_TOKENS_ID_ACCESS =
                 new OIDCTokens(ID_TOKEN, ACCESS_TOKEN, null);
+        public static final OIDCTokenResponse OIDC_TOKEN_ID_ACCESS_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ID_ACCESS);
         public static final RefreshToken REFRESH_TOKEN = new RefreshToken("REFRESH_TOKEN");
         public static final OIDCTokens OIDC_TOKENS_ID_ACCESS_REFRESH =
                 new OIDCTokens(ID_TOKEN, ACCESS_TOKEN, REFRESH_TOKEN);
         public static final OIDCTokens OIDC_TOKENS_ACCESS_REFRESH =
                 new OIDCTokens(ACCESS_TOKEN, REFRESH_TOKEN);
+        public static final OIDCTokenResponse REFRESHED_OIDC_TOKEN_ID_ACCESS_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ID_ACCESS_REFRESH);
+        public static final OIDCTokenResponse REFRESHED_OIDC_TOKEN_ACCESS_ACCESS_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ACCESS_REFRESH);
     }
 
     public static class OAuth {
