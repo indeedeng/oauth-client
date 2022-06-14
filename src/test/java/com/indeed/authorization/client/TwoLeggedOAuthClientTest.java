@@ -2,6 +2,7 @@ package com.indeed.authorization.client;
 
 import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
 import com.nimbusds.oauth2.sdk.GeneralException;
+import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,6 +14,8 @@ import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.HO
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.RAW_CLIENT_ID;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.TWO_LEGGED_EMPLOYER_ACCESS_AUTH_SCOPE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKEN_RESPONSE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.SUCCESS_HTTP_RESPONSE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,19 +32,23 @@ class TwoLeggedOAuthClientTest {
     }
 
     @Test
-    void requestAppAccessToken_SuccessResponse_NoException() throws OAuthBadResponseException {
-        doReturn(OIDC_TOKENS_ACCESS).when(twoLeggedOAuthClient).executeTokenRequest(any());
-        assertEquals(
-                OIDC_TOKENS_ACCESS,
-                twoLeggedOAuthClient.getAppOAuthCredentials(TWO_LEGGED_EMPLOYER_ACCESS_AUTH_SCOPE));
+    void requestAppAccessToken_withValidArgs_thenOIDCToken() throws OAuthBadResponseException {
+        // Arrange
+        doReturn(SUCCESS_HTTP_RESPONSE).when(twoLeggedOAuthClient).executeRequest(any());
+        doReturn(OIDC_TOKEN_RESPONSE).when(twoLeggedOAuthClient).getOIDCTokenResponse(any());
+
+        // Act
+        final OIDCTokens oidcTokens =
+                twoLeggedOAuthClient.getAppOAuthCredentials(TWO_LEGGED_EMPLOYER_ACCESS_AUTH_SCOPE);
+
+        // Assert
+        assertEquals(OIDC_TOKENS_ACCESS, oidcTokens);
     }
 
     @Test
-    void requestAppAccessToken_Error_IdentityIntegrationException()
+    void requestAppAccessToken_withResourcesFailing_thenThrowIdentityIntegrationException()
             throws OAuthBadResponseException {
-        doThrow(new OAuthBadResponseException())
-                .when(twoLeggedOAuthClient)
-                .executeTokenRequest(any());
+        doThrow(new OAuthBadResponseException()).when(twoLeggedOAuthClient).executeRequest(any());
         assertThrows(
                 OAuthBadResponseException.class,
                 () ->
@@ -50,11 +57,9 @@ class TwoLeggedOAuthClientTest {
     }
 
     @Test
-    void requestEmployerAccessToken_IdentityIntegrationException()
+    void requestEmployerAccessToken_withResourcesFailing_thenThrowIdentityIntegrationException()
             throws OAuthBadResponseException {
-        doThrow(new OAuthBadResponseException())
-                .when(twoLeggedOAuthClient)
-                .executeTokenRequest(any());
+        doThrow(new OAuthBadResponseException()).when(twoLeggedOAuthClient).executeRequest(any());
         assertThrows(
                 OAuthBadResponseException.class,
                 () ->

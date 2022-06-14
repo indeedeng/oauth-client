@@ -1,16 +1,22 @@
 package com.indeed.authorization.client;
 
+import com.indeed.authorization.client.exceptions.AccessTokenExpiredException;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
+import com.indeed.authorization.client.exceptions.InvalidScopesException;
 import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
 import com.nimbusds.oauth2.sdk.GeneralException;
 import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.indeed.authorization.client.ThreeLeggedOAuthClient.create3LeggedOAuth2Client;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Account.EMPLOYER_ID;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Account.USER_INFO;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Account.USER_INFO_SUCCESS_RESPONSE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CLIENT_SECRET;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CODE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.HOSTNAME;
@@ -22,11 +28,19 @@ import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.SE
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.STATE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.THREE_LEGGED_ALL_AUTH_SCOPES;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.THREE_LEGGED_EMPTY_AUTH_SCOPE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.EXPIRED_ACCESS_TOKEN_JWT;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.GOOD_NO_SCOPE_ACCESS_TOKEN_JWT;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ACCESS_REFRESH;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ID_ACCESS;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKENS_ID_ACCESS_REFRESH;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKEN_ID_ACCESS_RESPONSE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.OIDC_TOKEN_RESPONSE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.REFRESHED_OIDC_TOKEN_ACCESS_ACCESS_RESPONSE;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.REFRESHED_OIDC_TOKEN_ID_ACCESS_RESPONSE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.REFRESH_TOKEN;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.SUCCESS_HTTP_RESPONSE;
 import static com.indeed.authorization.client.constants.MockDataLibrary.Utils.EMPTY_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,7 +57,7 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void getRequestAuthorizationUrl_NullOptionals_NoException() {
+    void getRequestAuthorizationUrl_withValidArgsAndNullScope_thenThrowIllegalArgumentException() {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -55,7 +69,8 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void getRequestAuthorizationUrl_SingleScope_NoException() throws URISyntaxException {
+    void
+            getRequestAuthorizationUrl_withValidArgsAndSingleScope_thenThrowIllegalArgumentException() {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -67,7 +82,8 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void getRequestAuthorizationUrl_ValidState_NoException() throws URISyntaxException {
+    void getRequestAuthorizationUrl_withValidArgsAndValidState_thenReturnValidUri()
+            throws URISyntaxException {
         assertEquals(
                 new URI(
                         "https://secure.indeed.com/oauth/v2/authorize?scope=email+employer_access+offline_access&response_type=code&redirect_uri=https%3A%2F%2Fwww.acerecruitersllc.com%2Foauth%2Findeed&state=VALID_STATE&prompt=&client_id=CLIENT_ID"),
@@ -76,7 +92,8 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void getRequestAuthorizationUrl_SinglePrompt_NoException() throws URISyntaxException {
+    void getRequestAuthorizationUrl_withValidArgsAndSinglePrompt_thenReturnValidUri()
+            throws URISyntaxException {
         assertEquals(
                 new URI(
                         "https://secure.indeed.com/oauth/v2/authorize?scope=email+employer_access+offline_access&response_type=code&redirect_uri=https%3A%2F%2Fwww.acerecruitersllc.com%2Foauth%2Findeed&state=VALID_STATE&prompt=select_employer&client_id=CLIENT_ID"),
@@ -88,40 +105,46 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void requestAppAccessToken_SuccessResponse_NoException()
+    void requestAppAccessToken_withValidArgsAndSuccessResponse_thenReturnOIDCToken()
             throws URISyntaxException, OAuthBadResponseException {
-        doReturn(OIDC_TOKENS_ACCESS).when(threeLeggedOAuthClient).executeTokenRequest(any());
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(OIDC_TOKEN_RESPONSE).when(threeLeggedOAuthClient).getOIDCTokenResponse(any());
         assertEquals(
                 OIDC_TOKENS_ACCESS,
                 threeLeggedOAuthClient.getUserOAuthCredentials(CODE, REDIRECT_URI));
     }
 
     @Test
-    void requestAppAccessToken_ResponseEmptyScope_NoException()
+    void requestAppAccessToken_withResponseEmptyScope_thenReturnNoException()
             throws URISyntaxException, OAuthBadResponseException {
-        doReturn(OIDC_TOKENS_ACCESS_REFRESH)
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(REFRESHED_OIDC_TOKEN_ACCESS_ACCESS_RESPONSE)
                 .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+                .getOIDCTokenResponse(any());
         assertEquals(
                 OIDC_TOKENS_ACCESS_REFRESH,
                 threeLeggedOAuthClient.getUserOAuthCredentials(CODE, REDIRECT_URI));
     }
 
     @Test
-    void requestAppAccessToken_Error_IdentityIntegrationException()
+    void requestAppAccessToken_withFailResources_thenThrowIdentityIntegrationException()
             throws OAuthBadResponseException {
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
         doThrow(new OAuthBadResponseException())
                 .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+                .getOIDCTokenResponse(any());
         assertThrows(
                 OAuthBadResponseException.class,
                 () -> threeLeggedOAuthClient.getUserOAuthCredentials(CODE, REDIRECT_URI));
     }
 
     @Test
-    void requestEmployerAccessToken_SuccessResponse_NoException()
+    void requestEmployerAccessToken_withSuccessResponses_thenReturnValidOIDCToken()
             throws OAuthBadResponseException, URISyntaxException {
-        doReturn(OIDC_TOKENS_ID_ACCESS).when(threeLeggedOAuthClient).executeTokenRequest(any());
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(OIDC_TOKEN_ID_ACCESS_RESPONSE)
+                .when(threeLeggedOAuthClient)
+                .getOIDCTokenResponse(any());
         assertEquals(
                 OIDC_TOKENS_ID_ACCESS,
                 threeLeggedOAuthClient.getEmployerOAuthCredentials(
@@ -129,11 +152,12 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void requestEmployerAccessToken_ResponseEmptyScope_NoException()
+    void requestEmployerAccessToken_withResponseEmptyScope_thenReturnValidOIDCToken()
             throws OAuthBadResponseException, URISyntaxException {
-        doReturn(OIDC_TOKENS_ID_ACCESS_REFRESH)
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(REFRESHED_OIDC_TOKEN_ID_ACCESS_RESPONSE)
                 .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+                .getOIDCTokenResponse(any());
         assertEquals(
                 OIDC_TOKENS_ID_ACCESS_REFRESH,
                 threeLeggedOAuthClient.getEmployerOAuthCredentials(
@@ -141,11 +165,9 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void requestEmployerAccessToken_IdentityIntegrationException()
+    void requestEmployerAccessToken_withFailresources_thenThrowIdentityIntegrationException()
             throws OAuthBadResponseException {
-        doThrow(new OAuthBadResponseException())
-                .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+        doThrow(new OAuthBadResponseException()).when(threeLeggedOAuthClient).executeRequest(any());
         assertThrows(
                 OAuthBadResponseException.class,
                 () ->
@@ -154,33 +176,61 @@ class ThreeLeggedOAuthClientTest {
     }
 
     @Test
-    void requestRefreshAccessToken_SuccessResponse_NoException() throws OAuthBadResponseException {
-        doReturn(OIDC_TOKENS_ACCESS_REFRESH)
+    void requestRefreshAccessToken_withSuccessResponses_thenReturnValidOIDCToken()
+            throws OAuthBadResponseException {
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(REFRESHED_OIDC_TOKEN_ACCESS_ACCESS_RESPONSE)
                 .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+                .getOIDCTokenResponse(any());
         assertEquals(
                 OIDC_TOKENS_ACCESS_REFRESH,
                 threeLeggedOAuthClient.refreshOAuthCredentials(REFRESH_TOKEN.getValue()));
     }
 
     @Test
-    void requestRefreshAccessToken_ResponseEmptyScope_NoException()
+    void requestRefreshAccessToken_withResponseEmptyScope_thenReturnValidOIDCToken()
             throws OAuthBadResponseException {
-        doReturn(OIDC_TOKENS_ID_ACCESS_REFRESH)
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(REFRESHED_OIDC_TOKEN_ID_ACCESS_RESPONSE)
                 .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+                .getOIDCTokenResponse(any());
         assertEquals(
                 OIDC_TOKENS_ID_ACCESS_REFRESH,
                 threeLeggedOAuthClient.refreshOAuthCredentials(REFRESH_TOKEN.getValue()));
     }
 
     @Test
-    void requestRefreshAccessToken_IdentityIntegrationException() throws OAuthBadResponseException {
-        doThrow(new OAuthBadResponseException())
-                .when(threeLeggedOAuthClient)
-                .executeTokenRequest(any());
+    void requestRefreshAccessToken_withFailResources_thenThrowIdentityIntegrationException()
+            throws OAuthBadResponseException {
+        doThrow(new OAuthBadResponseException()).when(threeLeggedOAuthClient).executeRequest(any());
         assertThrows(
                 OAuthBadResponseException.class,
                 () -> threeLeggedOAuthClient.refreshOAuthCredentials(REFRESH_TOKEN.getValue()));
+    }
+
+    @Test
+    void getUserInfo_withExpiredAccessToken_thenThrowAccessTokenExpiredException() {
+        assertThrows(
+                AccessTokenExpiredException.class,
+                () -> threeLeggedOAuthClient.getUserInfo(EXPIRED_ACCESS_TOKEN_JWT, true));
+    }
+
+    @Test
+    void getUserInfo_withNoScopeAccessTokenAndEmailRequired_thenThrowAccessTokenExpiredException() {
+        assertThrows(
+                InvalidScopesException.class,
+                () -> threeLeggedOAuthClient.getUserInfo(GOOD_NO_SCOPE_ACCESS_TOKEN_JWT, true));
+    }
+
+    @Test
+    void getUserInfo_withValidAccessTokenAndEmailRequired_thenReturnValidUserToken()
+            throws MalformedURLException, OAuthBadResponseException, BadIndeedAccessTokenException {
+        doReturn(SUCCESS_HTTP_RESPONSE).when(threeLeggedOAuthClient).executeRequest(any());
+        doReturn(USER_INFO_SUCCESS_RESPONSE)
+                .when(threeLeggedOAuthClient)
+                .getUserInfoSuccessResponse(any());
+        assertEquals(
+                USER_INFO,
+                threeLeggedOAuthClient.getUserInfo(GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT, true));
     }
 }

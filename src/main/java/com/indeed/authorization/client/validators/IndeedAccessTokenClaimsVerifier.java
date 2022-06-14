@@ -1,11 +1,11 @@
 package com.indeed.authorization.client.validators;
 
 import com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet;
-import com.indeed.authorization.client.exceptions.AccessTokenExpiredExceptionBad;
+import com.indeed.authorization.client.exceptions.AccessTokenExpiredException;
 import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
-import com.indeed.authorization.client.exceptions.InvalidAuthorizedPartyExceptionBad;
-import com.indeed.authorization.client.exceptions.InvalidIssuerExceptionBad;
-import com.indeed.authorization.client.exceptions.InvalidScopesExceptionBad;
+import com.indeed.authorization.client.exceptions.InvalidAuthorizedPartyException;
+import com.indeed.authorization.client.exceptions.InvalidIssuerException;
+import com.indeed.authorization.client.exceptions.InvalidScopesException;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ClockSkewAware;
@@ -81,10 +81,10 @@ public class IndeedAccessTokenClaimsVerifier
      *
      * @param claimsSet The JWT claims set. Not null.
      * @throws BadIndeedAccessTokenException If the access token is invalid and/or missing claims
-     * @throws InvalidIssuerExceptionBad If the iss claim is invalid
-     * @throws InvalidAuthorizedPartyExceptionBad If the azp claim is invalid
-     * @throws InvalidScopesExceptionBad If all the required scopes are not granted
-     * @throws AccessTokenExpiredExceptionBad If the token is expired
+     * @throws InvalidIssuerException If the iss claim is invalid
+     * @throws InvalidAuthorizedPartyException If the azp claim is invalid
+     * @throws InvalidScopesException If all the required scopes are not granted
+     * @throws AccessTokenExpiredException If the token is expired
      */
     @Override
     public void verify(final JWTClaimsSet claimsSet, final JWKSecurityContext context)
@@ -96,36 +96,36 @@ public class IndeedAccessTokenClaimsVerifier
      * Verifies selected or all claims from the specified JWT claims set.
      *
      * @param claimsSet The JWT claims set. Not null.
-     * @throws InvalidIssuerExceptionBad If the iss claim is invalid
-     * @throws InvalidAuthorizedPartyExceptionBad If the azp claim is invalid
-     * @throws InvalidScopesExceptionBad If all the required scopes are not granted
-     * @throws AccessTokenExpiredExceptionBad If the token is expired
+     * @throws InvalidIssuerException If the iss claim is invalid
+     * @throws InvalidAuthorizedPartyException If the azp claim is invalid
+     * @throws InvalidScopesException If all the required scopes are not granted
+     * @throws AccessTokenExpiredException If the token is expired
      */
     private void verifyInternal(final IndeedAccessTokenClaimsSet claimsSet)
-            throws InvalidIssuerExceptionBad, InvalidAuthorizedPartyExceptionBad,
-                    InvalidScopesExceptionBad, AccessTokenExpiredExceptionBad {
+            throws InvalidIssuerException, InvalidAuthorizedPartyException, InvalidScopesException,
+                    AccessTokenExpiredException {
         final String iss = claimsSet.getIssuer().getValue();
         if (!this.isValidIssuer(iss)) {
-            throw new InvalidIssuerExceptionBad(
+            throw new InvalidIssuerException(
                     String.format(ERROR_MESSAGE_FORMATTER, this.expectedIssuer, iss));
         }
 
         final String azp = (String) claimsSet.getClaim(AZP_CLAIM_NAME);
         if (!isValidAuthorizedParty(azp)) {
-            throw new InvalidAuthorizedPartyExceptionBad(
+            throw new InvalidAuthorizedPartyException(
                     String.format(ERROR_MESSAGE_FORMATTER, this.expectedClientID, azp));
         }
 
         final String scope = (String) claimsSet.getClaim(SCOPE_CLAIM_NAME);
         if (!this.areScopesGranted(scope)) {
-            throw new InvalidScopesExceptionBad(
+            throw new InvalidScopesException(
                     String.format(
                             ERROR_MESSAGE_FORMATTER, Arrays.toString(this.expectedScopes), scope));
         }
 
         final long exp = (long) claimsSet.getClaim(EXP_CLAIM_NAME);
         if (this.isExpired(exp)) {
-            throw new AccessTokenExpiredExceptionBad(
+            throw new AccessTokenExpiredException(
                     String.format(ERROR_MESSAGE_FORMATTER, System.currentTimeMillis(), exp));
         }
     }
@@ -144,6 +144,6 @@ public class IndeedAccessTokenClaimsVerifier
     }
 
     private boolean isExpired(final long exp) {
-        return System.currentTimeMillis() > exp;
+        return System.currentTimeMillis() / 1000 > exp;
     }
 }

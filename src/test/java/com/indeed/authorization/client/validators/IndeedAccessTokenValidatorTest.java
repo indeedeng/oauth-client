@@ -11,7 +11,7 @@ import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.CL
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.EXPECTED_SCOPES;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.ISSUER;
 import static com.indeed.authorization.client.constants.MockDataLibrary.OAuth.JWKS_URI;
-import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.ACCESS_TOKEN;
+import static com.indeed.authorization.client.constants.MockDataLibrary.Tokens.EXPIRED_ACCESS_TOKEN;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,10 +63,12 @@ class IndeedAccessTokenValidatorTest {
                 () -> {
                     assertThrows(
                             BadIndeedAccessTokenException.class,
-                            () -> this.validator.validate(ACCESS_TOKEN, EXPECTED_SCOPES));
+                            () -> this.validator.validate(EXPIRED_ACCESS_TOKEN, EXPECTED_SCOPES));
                     assertThrows(
                             BadIndeedAccessTokenException.class,
-                            () -> this.defaultValidator.validate(ACCESS_TOKEN, EXPECTED_SCOPES));
+                            () ->
+                                    this.defaultValidator.validate(
+                                            EXPIRED_ACCESS_TOKEN, EXPECTED_SCOPES));
                 });
     }
 

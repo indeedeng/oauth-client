@@ -17,18 +17,17 @@
 package com.indeed.authorization.client;
 
 import com.indeed.authorization.client.exceptions.OAuthBadResponseException;
+import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.GeneralException;
-import com.nimbusds.oauth2.sdk.TokenRequest;
-import com.nimbusds.oauth2.sdk.TokenResponse;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
-import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -38,9 +37,8 @@ public abstract class OAuthClient {
     public static final String DEFAULT_JWKS_URL = "https://secure.indeed.com/.well-known/keys";
     public static final Integer DEFAULT_CONNECTION_TIMEOUT = 5000;
     public static final String EMPLOYER_PARAM_KEY = "employer";
-
-    protected ClientAuthentication clientAuthentication;
     protected final OIDCProviderMetadata oidcProviderMetadata;
+    protected ClientAuthentication clientAuthentication;
 
     public OAuthClient(
             final String clientId,
@@ -57,19 +55,28 @@ public abstract class OAuthClient {
                 OIDCProviderMetadata.resolve(new Issuer(hostname), timeout, timeout);
     }
 
-    protected OIDCTokens executeTokenRequest(final TokenRequest request)
+    protected HTTPResponse executeRequest(final AbstractRequest request)
             throws OAuthBadResponseException {
         try {
-            final TokenResponse tokenResponse =
-                    OIDCTokenResponseParser.parse(request.toHTTPRequest().send());
-            if (!tokenResponse.indicatesSuccess()) {
-                throw new OAuthBadResponseException(tokenResponse.toErrorResponse());
-            }
-            final OIDCTokenResponse successResponse =
-                    (OIDCTokenResponse) tokenResponse.toSuccessResponse();
-            return successResponse.getOIDCTokens();
-        } catch (final Exception e) {
+            return request.toHTTPRequest().send();
+        } catch (final IOException e) {
             throw new OAuthBadResponseException(e);
         }
+    }
+
+    protected OIDCTokenResponse getOIDCTokenResponse(final HTTPResponse httpResponse)
+            throws OAuthBadResponseException {
+        final OIDCTokenResponse tokenResponse;
+
+        try {
+            tokenResponse = OIDCTokenResponse.parse(httpResponse);
+        } catch (final ParseException e) {
+            throw new OAuthBadResponseException(e);
+        }
+
+        if (!tokenResponse.indicatesSuccess()) {
+            throw new OAuthBadResponseException(tokenResponse.toErrorResponse());
+        }
+        return tokenResponse.toSuccessResponse();
     }
 }

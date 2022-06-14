@@ -2,14 +2,19 @@ package com.indeed.authorization.client.constants;
 
 import com.indeed.authorization.client.common.IndeedPrompt;
 import com.indeed.authorization.client.common.IndeedScope;
+import com.indeed.authorization.client.exceptions.BadIndeedAccessTokenException;
 import com.indeed.authorization.client.tokens.IndeedAccessToken;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -20,28 +25,47 @@ import static com.indeed.authorization.client.claims.IndeedAccessTokenClaimsSet.
 
 public class MockDataLibrary {
     public static class Tokens {
-        public static final String ACCESS_TOKEN_JWT =
+        public static final String EXPIRED_ACCESS_TOKEN_JWT =
                 "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyOlNVQkpFQ1RfSUQiLCJhY3QiOnsic3ViIjoiYXBwOkFEVkVSVElTRVJfSUQiLCJhcHBfYWNjb3VudCI6InVzZXI6U1VCSkVDVF9JRCJ9LCJhenAiOiJDTElFTlRfSUQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIGVtcGxveWVyX2FjY2VzcyBlbWFpbCIsImlzcyI6Imh0dHBzOi8vc2VjdXJlLmluZGVlZC5jb20iLCJleHAiOjE2NTEyNjQxMDYsImlhdCI6MTY1MTI2MDUwNn0.PhqPyhY2lpxGmSf7i_FR18txWzFeH3l9MuWd1KELpJU";
-
-        public static final IndeedAccessToken ACCESS_TOKEN;
+        public static final String GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT =
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyOlNVQkpFQ1RfSUQiLCJhY3QiOnsic3ViIjoiYXBwOkFEVkVSVElTRVJfSUQiLCJhcHBfYWNjb3VudCI6InVzZXI6U1VCSkVDVF9JRCJ9LCJhenAiOiJDTElFTlRfSUQiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIGVtcGxveWVyX2FjY2VzcyBlbWFpbCIsImlzcyI6Imh0dHBzOi8vc2VjdXJlLmluZGVlZC5jb20iLCJleHAiOjI2NTEyNjQxMDYsImlhdCI6MTY1MTI2MDUwNn0.jZ1EtvyWpZZbLFuvcMqVEMtTTT3Sxon6_pz_9kehfbo";
+        public static final String GOOD_NO_SCOPE_ACCESS_TOKEN_JWT =
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyOlNVQkpFQ1RfSUQiLCJhY3QiOnsic3ViIjoiYXBwOkFEVkVSVElTRVJfSUQiLCJhcHBfYWNjb3VudCI6InVzZXI6U1VCSkVDVF9JRCJ9LCJhenAiOiJDTElFTlRfSUQiLCJzY29wZSI6IiIsImlzcyI6Imh0dHBzOi8vc2VjdXJlLmluZGVlZC5jb20iLCJleHAiOjI2NTEyNjQxMDYsImlhdCI6MTY1MTI2MDUwNn0.s6BCw8nnIlxVM4yVSAG4YPxs5N1ggcbblU2Qt94T_Jo";
+        public static final IndeedAccessToken GOOD_FULL_SCOPE_ACCESS_TOKEN;
+        public static final IndeedAccessToken EXPIRED_ACCESS_TOKEN;
 
         static {
             try {
-                ACCESS_TOKEN = new IndeedAccessToken(ACCESS_TOKEN_JWT);
-            } catch (final ParseException e) {
+                GOOD_FULL_SCOPE_ACCESS_TOKEN =
+                        new IndeedAccessToken(GOOD_FULL_SCOPE_ACCESS_TOKEN_JWT);
+                EXPIRED_ACCESS_TOKEN = new IndeedAccessToken(EXPIRED_ACCESS_TOKEN_JWT);
+            } catch (final BadIndeedAccessTokenException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public static final OIDCTokens OIDC_TOKENS_ACCESS = new OIDCTokens(ACCESS_TOKEN, null);
+        public static final HTTPResponse SUCCESS_HTTP_RESPONSE =
+                new HTTPResponse(HTTPResponse.SC_OK);
+        public static final HTTPResponse FAILED_HTTP_RESPONSE =
+                new HTTPResponse(HTTPResponse.SC_SERVER_ERROR);
+        public static final OIDCTokens OIDC_TOKENS_ACCESS =
+                new OIDCTokens(GOOD_FULL_SCOPE_ACCESS_TOKEN, null);
+        public static final OIDCTokenResponse OIDC_TOKEN_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ACCESS);
         public static final String ID_TOKEN = "ID_TOKEN";
         public static final OIDCTokens OIDC_TOKENS_ID_ACCESS =
-                new OIDCTokens(ID_TOKEN, ACCESS_TOKEN, null);
+                new OIDCTokens(ID_TOKEN, GOOD_FULL_SCOPE_ACCESS_TOKEN, null);
+        public static final OIDCTokenResponse OIDC_TOKEN_ID_ACCESS_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ID_ACCESS);
         public static final RefreshToken REFRESH_TOKEN = new RefreshToken("REFRESH_TOKEN");
         public static final OIDCTokens OIDC_TOKENS_ID_ACCESS_REFRESH =
-                new OIDCTokens(ID_TOKEN, ACCESS_TOKEN, REFRESH_TOKEN);
+                new OIDCTokens(ID_TOKEN, GOOD_FULL_SCOPE_ACCESS_TOKEN, REFRESH_TOKEN);
+        public static final OIDCTokenResponse REFRESHED_OIDC_TOKEN_ID_ACCESS_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ID_ACCESS_REFRESH);
         public static final OIDCTokens OIDC_TOKENS_ACCESS_REFRESH =
-                new OIDCTokens(ACCESS_TOKEN, REFRESH_TOKEN);
+                new OIDCTokens(GOOD_FULL_SCOPE_ACCESS_TOKEN, REFRESH_TOKEN);
+        public static final OIDCTokenResponse REFRESHED_OIDC_TOKEN_ACCESS_ACCESS_RESPONSE =
+                new OIDCTokenResponse(OIDC_TOKENS_ACCESS_REFRESH);
     }
 
     public static class OAuth {
@@ -70,9 +94,6 @@ public class MockDataLibrary {
                 new String[] {"offline_access", "employer_access", "email"};
         public static final String RECEIVED_SCOPES = "offline_access employer_access email";
         public static final String AUTHORIZATION_PARTY = RAW_CLIENT_ID;
-        public static final String AUDIENCE = "AUDIENCE";
-        public static final Set<String> EXPECTED_ACCESS_TOKEN_STANDARD_CLAIM_SET =
-                new HashSet<>(Arrays.asList("iat", "exp", "sub", "azp", "scope", "iss"));
         public static final JWTClaimsSet ACCESS_TOKEN_JWT_CLAIMS_SET =
                 new JWTClaimsSet.Builder()
                         .expirationTime(Utils.DATE)
@@ -82,13 +103,19 @@ public class MockDataLibrary {
                         .claim(AZP_CLAIM_NAME, AUTHORIZATION_PARTY)
                         .claim(SCOPE_CLAIM_NAME, RECEIVED_SCOPES)
                         .build();
+        public static final String AUDIENCE = "AUDIENCE";
+        public static final Set<String> EXPECTED_ACCESS_TOKEN_STANDARD_CLAIM_SET =
+                new HashSet<>(Arrays.asList("iat", "exp", "sub", "azp", "scope", "iss"));
         public static final JWTClaimsSet EMPTY_JWT_CLAIM_SET = new JWTClaimsSet.Builder().build();
     }
 
     public static class Account {
-
         public static final String EMPLOYER_ID = "EMPLOYER_ID";
         public static final String SUBJECT_ID = "SUBJECT_ID";
+
+        public static final UserInfo USER_INFO = new UserInfo(new Subject(SUBJECT_ID));
+        public static final UserInfoSuccessResponse USER_INFO_SUCCESS_RESPONSE =
+                new UserInfoSuccessResponse(USER_INFO);
     }
 
     public static class Error {

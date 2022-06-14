@@ -10,4 +10,8 @@ public class BadIndeedAccessTokenException extends BadJWTException {
     public BadIndeedAccessTokenException(final String message, final Throwable cause) {
         super(message, cause);
     }
+
+    public BadIndeedAccessTokenException(final Throwable cause) {
+        super(cause.getMessage(), cause);
+    }
 }
